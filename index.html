@@ -101,4 +101,5 @@ function renderWorld(){var wn=state.worldNews.length?state.worldNews:[{text:'Wor
 function renderHistory(){var p=state.player;document.getElementById('apps').textContent=p.apps;document.getElementById('histGoals').textContent=p.goals;document.getElementById('histAssists').textContent=p.assists;document.getElementById('rating').textContent=p.apps?(p.ratingSum/p.apps).toFixed(2):'7.00';document.getElementById('awards').innerHTML=['Golden Boot · Based on goals','Player of the Season · Based on rating','Young Player of the Season · Based on age and rating','Team of the Season · Based on performances'].map(function(x){return '<div>🏆 '+x+'</div>'}).join('');document.getElementById('seasonLog').innerHTML=(state.seasonLog.length?state.seasonLog:['Your first season has not been completed yet.']).map(function(x){return '<div>📘 '+x+'</div>'}).join('')}
 function renderAll(){if(!state||!state.started)return;renderHome();renderSquad();renderDevelopment();renderTransfers();renderAgent();renderAcademy();renderWorld();renderHistory()}
 state=load();if(state.started)openApp();
-</script><script src="realism.js"></script></body></html>
+</script><script src="realism.js"></script><script src="career-controls.js"></script>
+</body></html>
