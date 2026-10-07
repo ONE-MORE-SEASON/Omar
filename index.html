@@ -118,4 +118,18 @@ omsPlayerDatabasePanel();
   if(oldRender)window.render=function(){oldRender();refresh()};
   setTimeout(seasonStats,50);
 })();
+</script><script id="oms-stability-fix">
+(function(){
+  function getSaved(){try{return JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
+  function syncPublicState(){
+    const s=getSaved(); if(s) window.OMS_CURRENT_STATE=s;
+  }
+  syncPublicState();
+  const oldSave=window.save;
+  if(oldSave) window.save=function(){oldSave();syncPublicState()};
+  const oldBegin=window.beginCareer;
+  if(oldBegin) window.beginCareer=function(){oldBegin();syncPublicState()};
+  const oldShow=window.show;
+  if(oldShow) window.show=function(id){const out=oldShow(id);syncPublicState();return out};
+})();
 </script></body></html>
