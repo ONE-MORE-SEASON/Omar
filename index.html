@@ -78,4 +78,44 @@ omsPlayerDatabasePanel();
   };
   setTimeout(renderCareerMarket,0);
 })();
+</script><script id="oms-career-season-stats">
+(function(){
+  function seasonStats(){
+    const home=document.getElementById('home');
+    if(!home || !window.OMS_PLAYERS) return;
+    let box=document.getElementById('oms-season-stats');
+    if(box)return;
+    box=document.createElement('section');
+    box.className='panel';
+    box.id='oms-season-stats';
+    box.innerHTML='<div class="eyebrow">PLAYER CAREER</div><h2>SEASON PERFORMANCE</h2><div class="cards"><div class="card"><div class="eyebrow">APPEARANCES</div><h3 id="omsApps">0</h3></div><div class="card"><div class="eyebrow">GOALS</div><h3 id="omsGoals">0</h3></div><div class="card"><div class="eyebrow">ASSISTS</div><h3 id="omsAssists">0</h3></div><div class="card"><div class="eyebrow">FORM</div><h3 id="omsForm">7.0</h3></div></div><p class="muted">Din säsongsstatistik följer med när du simulerar matcher.</p>';
+    home.appendChild(box);
+    refresh();
+  }
+  function refresh(){
+    if(!window.state)return;
+    const s=window.state;
+    const apps=s.apps||0, goals=s.goals||0, assists=s.assists||0;
+    const a=document.getElementById('omsApps'),g=document.getElementById('omsGoals'),as=document.getElementById('omsAssists'),f=document.getElementById('omsForm');
+    if(a)a.textContent=apps;if(g)g.textContent=goals;if(as)as.textContent=assists;
+    if(f)f.textContent=(7+(s.morale||78)/100).toFixed(1);
+  }
+  const oldSim=window.simulateMatch;
+  if(oldSim){
+    window.simulateMatch=function(){
+      oldSim();
+      if(window.state){
+        state.apps=(state.apps||0)+1;
+        const r=Math.random();
+        if(r<0.32)state.goals=(state.goals||0)+1;
+        if(r<0.38)state.assists=(state.assists||0)+1;
+        if(typeof save==='function')save();
+      }
+      refresh();
+    };
+  }
+  const oldRender=window.render;
+  if(oldRender)window.render=function(){oldRender();refresh()};
+  setTimeout(seasonStats,50);
+})();
 </script></body></html>
