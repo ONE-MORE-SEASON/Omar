@@ -55,4 +55,27 @@ window.OMS_PLAYERS=OMS_PLAYERS;window.OMS_LEAGUES=OMS_LEAGUES;window.OMS_CLUBS=O
 function omsPlayerDatabasePanel(){const view=document.getElementById('squad');if(!view)return;view.innerHTML='<div class="panel"><div class="eyebrow">PLAYER CAREER DATABASE</div><h1>100 PLAYERS · 16 CLUBS · 1 LEAGUE</h1><p class="muted">Enkel Player Career-databas med riktiga spelare från Premier League.</p><div class="news"><div><b>'+OMS_PLAYERS.length+'</b> spelare</div><div><b>'+OMS_CLUBS.length+'</b> klubbar</div><div><b>'+OMS_LEAGUES.length+'</b> liga</div></div><div class="news" id="omsPlayersList"></div></div>';document.getElementById('omsPlayersList').innerHTML=OMS_PLAYERS.map(p=>'<div><b>'+p[0]+'</b> · '+p[1]+' · '+p[3]+' · OVR '+p[4]+'</div>').join('')}
 omsPlayerDatabasePanel();
 </script>
-</body></html>
+<script id="oms-player-career-market">
+(function(){
+  function renderCareerMarket(){
+    const view=document.getElementById('transfers');
+    if(!view || !window.OMS_PLAYERS) return;
+    const current=(window.state&&state.club)||'Your Club';
+    const pool=[...OMS_PLAYERS].sort(()=>Math.random()-0.5).slice(0,12);
+    view.innerHTML='<div class="panel"><div class="eyebrow">PLAYER CAREER · TRANSFER MARKET</div><h1>TRANSFER SHORTLIST</h1><p class="muted">Din agent följer spelare och klubbar i Premier League. Välj en spelare för scouting.</p><div class="news"><div><b>League:</b> Premier League</div><div><b>Your club:</b> '+current+'</div><div><b>Shortlist:</b> '+pool.length+' players</div></div><div class="news">'+pool.map((p,i)=>'<div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>'+p[0]+'</b><br><span class="muted">'+p[1]+' · '+p[3]+' · OVR '+p[4]+'</span></span><button class="action" onclick="omsScoutPlayer('+i+')">SCOUT</button></div>').join('')+'</div><div id="omsScoutResult" class="muted" style="margin-top:12px">Select SCOUT to view a player report.</div></div>';
+    window.omsMarketPool=pool;
+  }
+  window.omsScoutPlayer=function(i){
+    const p=window.omsMarketPool&&window.omsMarketPool[i];
+    if(!p) return;
+    const el=document.getElementById('omsScoutResult');
+    if(el) el.innerHTML='<b>SCOUT REPORT:</b> '+p[0]+' · '+p[3]+' · OVR '+p[4]+' · '+p[1]+'<br><span class="muted">Your agent has added this player to the shortlist. Transfer interest can develop as your career progresses.</span>';
+  };
+  const oldShow=window.show;
+  window.show=function(id,b){
+    oldShow(id,b);
+    if(id==='transfers') renderCareerMarket();
+  };
+  setTimeout(renderCareerMarket,0);
+})();
+</script></body></html>
