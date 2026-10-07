@@ -157,4 +157,36 @@ omsPlayerDatabasePanel();
   if(oldShow)window.show=function(id){const out=oldShow(id);if(id==='history')setTimeout(addHistory,0);return out};
   setTimeout(addHistory,80);
 })();
-</script><script src="realism.js"></script></body></html>
+</script><script src="realism.js"></script><script id="oms-persistent-shortlist">
+(function(){
+  const KEY='omsTransferShortlistV1';
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+  function save(a){localStorage.setItem(KEY,JSON.stringify(a.slice(-20)))}
+  function addPlayer(i){
+    const p=window.OMS_PLAYERS&&window.OMS_PLAYERS[i]; if(!p)return;
+    const a=load();
+    if(!a.some(x=>x.name===p.name)){a.push({name:p.name,club:p.club,position:p.position,ovr:p.ovr});save(a)}
+    render();
+    if(typeof window.toast==='function')window.toast(p.name+' added to shortlist');
+  }
+  function render(){
+    const host=document.getElementById('transfers'); if(!host)return;
+    let box=document.getElementById('oms-persistent-shortlist');
+    if(!box){
+      box=document.createElement('section'); box.className='panel'; box.id='oms-persistent-shortlist';
+      host.appendChild(box);
+    }
+    const a=load();
+    box.innerHTML='<div class="eyebrow">PLAYER CAREER</div><h2>MY TRANSFER SHORTLIST</h2>'+
+      (a.length?a.map((p,i)=>'<div class="row"><strong>'+p.name+'</strong><span>'+p.position+' · '+p.ovr+' OVR · '+p.club+'</span></div>').join(''):'<p class="muted">Scout players in the Transfer Market to build your shortlist.</p>');
+  }
+  const oldScout=window.omsScoutPlayer;
+  window.omsScoutPlayer=function(i){
+    if(oldScout)oldScout(i);
+    addPlayer(i);
+  };
+  const oldShow=window.show;
+  if(oldShow)window.show=function(id){const out=oldShow(id);if(id==='transfers')setTimeout(render,20);return out};
+  setTimeout(render,100);
+})();
+</script></body></html>
