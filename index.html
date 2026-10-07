@@ -132,4 +132,31 @@ omsPlayerDatabasePanel();
   const oldShow=window.show;
   if(oldShow) window.show=function(id){const out=oldShow(id);syncPublicState();return out};
 })();
+</script><script id="oms-career-history">
+(function(){
+  function addHistory(){
+    const host=document.getElementById('history'); if(!host||document.getElementById('oms-career-timeline'))return;
+    const box=document.createElement('section'); box.className='panel'; box.id='oms-career-timeline';
+    box.innerHTML='<div class="eyebrow">PLAYER CAREER</div><h2>CAREER TIMELINE</h2><div id="omsTimeline"></div><p class="muted">Viktiga karriärhändelser sparas automatiskt.</p>';
+    host.appendChild(box); renderHistory();
+  }
+  function renderHistory(){
+    const el=document.getElementById('omsTimeline'); if(!el)return;
+    let s=window.OMS_CURRENT_STATE; try{s=s||JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){}
+    const events=(s&&s.careerEvents)||[];
+    el.innerHTML=events.length?events.slice(-12).reverse().map(e=>'<div class="row"><strong>'+String(e.title||'Career event')+'</strong><span>'+String(e.detail||'')+'</span></div>').join(''):'<div class="muted">No career events yet.</div>';
+  }
+  function record(title,detail){
+    let s;try{s=JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return}
+    if(!s)return;
+    s.careerEvents=s.careerEvents||[];
+    s.careerEvents.push({title,detail,day:s.day||1});
+    s.careerEvents=s.careerEvents.slice(-30);
+    localStorage.setItem('omsCareerStable3',JSON.stringify(s)); window.OMS_CURRENT_STATE=s; renderHistory();
+  }
+  window.OMS_RECORD_CAREER_EVENT=record;
+  const oldShow=window.show;
+  if(oldShow)window.show=function(id){const out=oldShow(id);if(id==='history')setTimeout(addHistory,0);return out};
+  setTimeout(addHistory,80);
+})();
 </script></body></html>
