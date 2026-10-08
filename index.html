@@ -460,4 +460,39 @@ a{color:var(--c-accent)!important}
  const home=document.getElementById('home');
  if(home)home.appendChild(box);
 })();
+</script>
+<style id="mega5">
+/* MEGA UPDATE 5.0 — MATCHDAY & CAREER IMMERSION */
+.m5Top{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.m5Badge{padding:7px 11px;border-radius:999px;background:rgba(66,217,255,.09);border:1px solid rgba(66,217,255,.25);color:#42d9ff;font-size:11px;font-weight:900;letter-spacing:.08em}
+.m5Hero{display:grid;grid-template-columns:1.5fr .8fr;gap:16px}
+.m5Score{font-size:46px;font-weight:950;letter-spacing:-2px}
+.m5Meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.m5Stat{padding:13px;border-radius:13px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07)}
+.m5Stat b{display:block;font-size:20px;margin-top:3px}
+.m5Timeline{display:grid;gap:9px;margin-top:14px}
+.m5Line{display:grid;grid-template-columns:76px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07)}
+.m5Dot{height:9px;width:9px;border-radius:50%;background:#62f2a2;box-shadow:0 0 12px #62f2a2}
+@media(max-width:760px){.m5Hero{grid-template-columns:1fr}.m5Meta{grid-template-columns:1fr 1fr}}
+</style>
+<script>
+(()=> {
+ function get(){return window.OMS_GET_STATE?window.OMS_GET_STATE():JSON.parse(localStorage.getItem('omsCareerStable3')||'{}')}
+ function renderM5(){
+   const home=document.getElementById('home');if(!home)return;
+   let old=document.getElementById('m5Matchday');if(old)old.remove();
+   const s=get(), hist=(s.matchHistory||[]).slice(-6).reverse();
+   const box=document.createElement('div');box.id='m5Matchday';box.className='panel';box.style.marginTop='18px';
+   const opp=(window.OMS_CLUBS||[]).filter(x=>x!==s.club)[Math.floor(Math.random()*Math.max(1,(window.OMS_CLUBS||[]).filter(x=>x!==s.club).length))]||'Next Opponent';
+   const form=(s.formHistory||[]).slice(-5).map(x=>x>70?'W':x>55?'D':'L').join(' ')||'—';
+   box.innerHTML='<div class="m5Top"><div><div class="eyebrow">MEGA MATCHDAY · 5.0</div><h2 style="margin:5px 0">MATCHDAY HUB</h2><div class="muted">A focused matchday view for your player career.</div></div><span class="m5Badge">SEASON '+(s.season||1)+' · DAY '+(s.day||1)+'</span></div>'+
+   '<div class="m5Hero"><div class="m3Card"><div class="muted">UPCOMING FIXTURE</div><div class="m5Score">'+(s.club||'Your Club')+' <span style="opacity:.4">vs</span> '+opp+'</div><div class="m5Meta"><div class="m5Stat"><span class="m3Small">OVR</span><b>'+(s.ovr||0)+'</b></div><div class="m5Stat"><span class="m3Small">FORM</span><b>'+form+'</b></div><div class="m5Stat"><span class="m3Small">MORALE</span><b>'+(s.morale||0)+'</b></div></div><div class="m3Btns"><button onclick="simulateMatch()">SIMULATE MATCH</button><button onclick="advance(3)">REST 3 DAYS</button></div></div>'+
+   '<div class="m3Card"><div class="eyebrow">CAREER SNAPSHOT</div><h3 style="margin:8px 0">Your season</h3><div class="m5Stat"><span class="m3Small">APPEARANCES</span><b>'+(s.apps||0)+'</b></div><div class="m5Stat" style="margin-top:8px"><span class="m3Small">GOALS · ASSISTS</span><b>'+(s.goals||0)+' · '+(s.assists||0)+'</b></div></div></div>'+
+   '<h3 style="margin-top:22px">RECENT MATCH LOG</h3><div class="m5Timeline">'+(hist.length?hist.map((h,i)=>'<div class="m5Line"><span class="m3Small">MATCH '+(hist.length-i)+'</span><span>'+String(h).replace(/</g,'&lt;')+'</span><span class="m5Dot"></span></div>').join(''):'<div class="muted">Your match history will appear here.</div>')+'</div>';
+   home.appendChild(box);
+ }
+ const oldShow=window.show;
+ if(oldShow)window.show=function(id,b){oldShow(id,b);if(id==='home')setTimeout(renderM5,20)};
+ setTimeout(renderM5,650);
+})();
 </script></body></html>
