@@ -32,7 +32,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 <section id="history" class="view"><div class="panel"><div class="eyebrow">HISTORY</div><h1>Career History</h1><p class="muted">Season results, awards and career legacy.</p></div></section>
 </main><div id="toast" class="toast"></div></div>
 <script>
-const KEY='omsCareerStable3';let state=null;
+const KEY='omsCareerStable3';let state=null;window.OMS_GET_STATE=()=>state;
 const tabs=[['HOME','home'],['SQUAD','squad'],['TRANSFERS','transfers'],['ACADEMY','academy'],['DEVELOPMENT','development'],['AGENT','agent'],['WORLD','world'],['HISTORY','history']];
 const nav=document.getElementById('nav');tabs.forEach(([name,id],i)=>{const b=document.createElement('button');b.textContent=name;b.onclick=()=>show(id,b);if(i===0)b.classList.add('active');nav.appendChild(b)});
 function beginCareer(){const name=document.getElementById('name').value.trim();if(!name){alert('Skriv ett spelarnamn först.');return}state={name,age:+document.getElementById('age').value,pos:document.getElementById('pos').value,nation:document.getElementById('nation').value,club:document.getElementById('club').value,day:1,season:1,ovr:67,fitness:92,morale:78,sharp:85,wins:0,draws:0,losses:0};save();openApp();render()}
@@ -190,4 +190,98 @@ omsPlayerDatabasePanel();
   setTimeout(render,100);
 })();
 </script><script src="career-controls.js"></script>
-</body></html>
+<style id="oms-mega-ui">
+:root{--cyan:#35c8ff;--violet:#7c6cff;--lime:#28e0a4}
+body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radial-gradient(circle at 95% 20%,#20315d 0,transparent 25%),linear-gradient(145deg,#02060d,#061426 55%,#020811)}
+.panel{position:relative;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s}
+.panel:hover{border-color:#2b6f99;box-shadow:0 18px 50px #0008}
+.panel:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,#35c8ff08,transparent 35%,#7c6cff08)}
+.action{box-shadow:0 8px 22px #00c99522;transition:transform .15s,filter .15s}
+.action:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.card{transition:transform .15s,border-color .15s}.card:hover{transform:translateY(-2px);border-color:#327da7}
+.megaGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.megaStat{padding:15px;border:1px solid #255a7d;border-radius:14px;background:linear-gradient(145deg,#0b2740,#071727)}
+.megaStat b{font-size:24px;display:block;margin-top:4px}
+.megaSplit{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:18px}
+.feedItem{padding:12px 0;border-bottom:1px solid #17384f}
+.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#103652;border:1px solid #276789;color:#a9dcf8;font-size:10px;font-weight:900;margin:2px}
+@media(max-width:900px){.megaGrid{grid-template-columns:1fr 1fr}.megaSplit{grid-template-columns:1fr}}
+@media(max-width:600px){.megaGrid{grid-template-columns:1fr}}
+</style>
+<script id="oms-mega-upgrade">
+(function(){
+  const extraPlayers=[
+    ['Lamine Yamal','Barcelona','La Liga','RW',89],['Pedri','Barcelona','La Liga','CM',88],['Raphinha','Barcelona','La Liga','LW',87],['Robert Lewandowski','Barcelona','La Liga','ST',89],
+    ['Vinícius Júnior','Real Madrid','La Liga','LW',90],['Jude Bellingham','Real Madrid','La Liga','CAM',91],['Kylian Mbappé','Real Madrid','La Liga','ST',92],['Federico Valverde','Real Madrid','La Liga','CM',88],
+    ['Antoine Griezmann','Atlético Madrid','La Liga','CF',88],['Julián Álvarez','Atlético Madrid','ST',87],['Nico Williams','Athletic Club','La Liga','LW',85],['Mikel Oyarzabal','Real Sociedad','La Liga','LW',84],
+    ['Harry Kane','Bayern Munich','Bundesliga','ST',90],['Jamal Musiala','Bayern Munich','Bundesliga','CAM',89],['Michael Olise','Bayern Munich','Bundesliga','RW',87],['Joshua Kimmich','Bayern Munich','Bundesliga','CM',87],
+    ['Florian Wirtz','Bayer Leverkusen','Bundesliga','CAM',87],['Jeremie Frimpong','Bayer Leverkusen','Bundesliga','RB',84],['Serhou Guirassy','Borussia Dortmund','Bundesliga','ST',84],['Julian Brandt','Borussia Dortmund','Bundesliga','CAM',83],
+    ['Lautaro Martínez','Inter','Serie A','ST',89],['Nicolò Barella','Inter','Serie A','CM',87],['Alessandro Bastoni','Inter','Serie A','CB',87],['Hakan Çalhanoğlu','Inter','Serie A','CM',87],
+    ['Rafael Leão','AC Milan','Serie A','LW',87],['Christian Pulisic','AC Milan','Serie A','RW',84],['Theo Hernández','AC Milan','Serie A','LB',86],['Mike Maignan','AC Milan','Serie A','GK',87],
+    ['Dušan Vlahović','Juventus','Serie A','ST',84],['Kenan Yıldız','Juventus','Serie A','CAM',80],['Gianluigi Donnarumma','Paris Saint-Germain','Ligue 1','GK',89],['Achraf Hakimi','Paris Saint-Germain','Ligue 1','RB',88],
+    ['Ousmane Dembélé','Paris Saint-Germain','Ligue 1','RW',90],['Khvicha Kvaratskhelia','Paris Saint-Germain','Ligue 1','LW',87],['Vitinha','Paris Saint-Germain','Ligue 1','CM',88],['Marquinhos','Paris Saint-Germain','Ligue 1','CB',86],
+    ['Jonathan David','Lille','Ligue 1','ST',84],['Bradley Barcola','Paris Saint-Germain','Ligue 1','LW',85],['Mason Greenwood','Marseille','Ligue 1','RW',82],['Pierre-Emile Højbjerg','Marseille','Ligue 1','CM',82],
+    ['Frenkie de Jong','Barcelona','La Liga','CM',87],['Dani Olmo','Barcelona','La Liga','CAM',84],['Rodrygo','Real Madrid','La Liga','RW',86],['Eduardo Camavinga','Real Madrid','La Liga','CM',85],
+    ['Aurélien Tchouaméni','Real Madrid','La Liga','CM',85],['Thibaut Courtois','Real Madrid','La Liga','GK',89],['Ronald Araújo','Barcelona','La Liga','CB',86],['Pau Cubarsí','Barcelona','La Liga','CB',80],
+    ['Victor Osimhen','Galatasaray','Other','ST',88],['Rasmus Højlund','Manchester United','Premier League','ST',81],['Leny Yoro','Manchester United','Premier League','CB',80],['João Neves','Paris Saint-Germain','Ligue 1','CM',84],
+    ['Warren Zaïre-Emery','Paris Saint-Germain','Ligue 1','CM',82],['Xavi Simons','RB Leipzig','Bundesliga','CAM',84],['Benjamin Šeško','RB Leipzig','Bundesliga','ST',83],['Loïs Openda','RB Leipzig','Bundesliga','ST',84],
+    ['Victor Boniface','Bayer Leverkusen','Bundesliga','ST',84],['Nico Schlotterbeck','Borussia Dortmund','Bundesliga','CB',84],['Lorenzo Pellegrini','Roma','Serie A','CAM',83],['Paulo Dybala','Roma','Serie A','CF',86],
+    ['Khéphren Thuram','Juventus','Serie A','CM',81],['Federico Dimarco','Inter','Serie A','LB',86],['Romelu Lukaku','Napoli','Serie A','ST',84],['Scott McTominay','Napoli','Serie A','CM',82]
+  ];
+  const extraClubs=['Barcelona','Real Madrid','Atlético Madrid','Athletic Club','Real Sociedad','Bayern Munich','Bayer Leverkusen','Borussia Dortmund','RB Leipzig','Inter','AC Milan','Juventus','Roma','Napoli','Paris Saint-Germain','Lille','Marseille'];
+  const extraLeagues=[['La Liga','Spain'],['Bundesliga','Germany'],['Serie A','Italy'],['Ligue 1','France']];
+  function installDB(){
+    if(!window.OMS_PLAYERS)return;
+    const key=new Set(window.OMS_PLAYERS.map(p=>p[0]));
+    extraPlayers.forEach(p=>{if(!key.has(p[0]))window.OMS_PLAYERS.push(p)});
+    window.OMS_CLUBS=[...new Set([...(window.OMS_CLUBS||[]),...extraClubs])];
+    window.OMS_LEAGUES=[...(window.OMS_LEAGUES||[]),...extraLeagues.filter(x=>!(window.OMS_LEAGUES||[]).some(y=>y[0]===x[0]))];
+    window.OMS_DB_VERSION='MEGA 2.0';
+    const sel=document.getElementById('club');
+    if(sel){const current=sel.value;sel.innerHTML='<option>Hillcrest Academy</option>'+window.OMS_CLUBS.map(c=>'<option>'+c+'</option>').join('');if([...sel.options].some(o=>o.value===current))sel.value=current}
+    if(typeof omsPlayerDatabasePanel==='function')omsPlayerDatabasePanel();
+  }
+  function current(){try{return JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
+  function saveMega(s){localStorage.setItem('omsCareerStable3',JSON.stringify(s));window.OMS_CURRENT_STATE=s}
+  function ensure(s){
+    if(!s)return s;
+    s.apps=s.apps||0;s.goals=s.goals||0;s.assists=s.assists||0;s.value=s.value||150000;s.reputation=s.reputation||50;
+    s.trophies=s.trophies||0;s.cleanSheets=s.cleanSheets||0;s.contractYears=s.contractYears||2;
+    s.seasonGoals=s.seasonGoals||0;s.seasonAssists=s.seasonAssists||0;
+    return s;
+  }
+  function mountHome(){
+    const home=document.getElementById('home');if(!home||document.getElementById('oms-mega-dashboard'))return;
+    const box=document.createElement('section');box.className='panel';box.id='oms-mega-dashboard';
+    box.innerHTML='<div class="eyebrow">ONE MORE SEASON · MEGA UPDATE</div><h2>CAREER DASHBOARD 2.0</h2><div class="megaGrid"><div class="megaStat"><span class="muted">VALUE</span><b id="mxValue">€150K</b></div><div class="megaStat"><span class="muted">REPUTATION</span><b id="mxRep">50</b></div><div class="megaStat"><span class="muted">TROPHIES</span><b id="mxTrophies">0</b></div><div class="megaStat"><span class="muted">CAREER APPS</span><b id="mxApps">0</b></div></div><div class="megaSplit"><div><div class="eyebrow">CAREER MOMENTUM</div><div id="mxMomentum" class="news"></div></div><div><div class="eyebrow">WORLD SNAPSHOT</div><div id="mxWorld" class="news"></div></div></div>';
+    home.appendChild(box);refresh();
+  }
+  function refresh(){
+    const s=ensure(current());if(!s)return;saveMega(s);
+    const v=document.getElementById('mxValue'),r=document.getElementById('mxRep'),t=document.getElementById('mxTrophies'),a=document.getElementById('mxApps');
+    if(v)v.textContent=s.value>=1000000?'€'+(s.value/1000000).toFixed(1)+'M':'€'+Math.round(s.value/1000)+'K';
+    if(r)r.textContent=Math.round(s.reputation);if(t)t.textContent=s.trophies;if(a)a.textContent=s.apps;
+    const m=document.getElementById('mxMomentum'),w=document.getElementById('mxWorld');
+    if(m)m.innerHTML='<div class="feedItem">⚡ Form · '+Math.round(s.sharp)+'% sharpness</div><div class="feedItem">💪 Fitness · '+Math.round(s.fitness)+'%</div><div class="feedItem">🎯 '+s.seasonGoals+' goals · '+s.seasonAssists+' assists this season</div>';
+    if(w)w.innerHTML='<div class="feedItem">🌍 '+window.OMS_CLUBS.length+' clubs in the database</div><div class="feedItem">🏆 '+window.OMS_LEAGUES.length+' leagues available</div><div class="feedItem">👤 '+window.OMS_PLAYERS.length+' players available</div>';
+  }
+  const oldSim=window.simulateMatch;
+  window.simulateMatch=function(){
+    const before=ensure(current());if(!before)return;
+    oldSim();
+    const s=ensure(current());const r=Math.random();
+    s.apps++;if(r<.36){s.goals++;s.seasonGoals++;s.reputation+=2;s.value+=12000}else if(r<.58){s.assists++;s.seasonAssists++;s.reputation+=1;s.value+=6000}
+    if(s.reputation>99)s.reputation=99;s.value=Math.min(150000000,s.value+Math.max(0,s.ovr-70)*400);
+    if(s.apps%20===0&&s.ovr<99){s.ovr++;s.value+=50000;toast('PLAYER DEVELOPMENT +1 OVR')}
+    saveMega(s);refresh();
+  };
+  const oldAdvance=window.advance;
+  window.advance=function(n){
+    oldAdvance(n);const s=ensure(current());if(!s)return;
+    s.value=Math.max(50000,s.value+(s.reputation>70?2500:500));saveMega(s);refresh();
+  };
+  const oldBegin=window.beginCareer;
+  window.beginCareer=function(){oldBegin();const s=ensure(current());saveMega(s);refresh()};
+  setTimeout(function(){installDB();mountHome();refresh()},120);
+})();
+</script></body></html>
