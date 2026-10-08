@@ -284,4 +284,58 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
   window.beginCareer=function(){oldBegin();const s=ensure(current());saveMega(s);refresh()};
   setTimeout(function(){installDB();mountHome();refresh()},120);
 })();
+</script><style id="oms-mega2-ui">
+.kpiGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px}.kpi{padding:14px;border:1px solid #245b7d;border-radius:14px;background:#071c2e}.kpi b{display:block;font-size:20px;margin-top:5px}.marketGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px}.playerCard{padding:16px;border:1px solid #255a7d;border-radius:15px;background:linear-gradient(145deg,#0b2941,#061624)}.playerCard h3{margin:6px 0}.mini{font-size:10px;color:#8fb5cf}.tag{padding:4px 7px;border-radius:999px;background:#103c58;font-size:9px;font-weight:900}.tableRow{display:grid;grid-template-columns:1.5fr 1fr .5fr .7fr;gap:8px;padding:10px 0;border-bottom:1px solid #17384f;align-items:center;font-size:12px}@media(max-width:900px){.kpiGrid{grid-template-columns:repeat(2,1fr)}.marketGrid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.marketGrid{grid-template-columns:1fr}.tableRow{grid-template-columns:1fr 1fr}}
+</style>
+<script id="oms-mega2">
+(function(){
+ const LEAGUE_TEAMS={
+  "Premier League":["Arsenal","Chelsea","Liverpool","Manchester City","Manchester United","Tottenham","Newcastle United","Aston Villa","Brighton","West Ham","Crystal Palace","Everton","Nottingham Forest","Fulham","Brentford","Wolves"],
+  "La Liga":["Barcelona","Real Madrid","Atlético Madrid","Athletic Club","Real Sociedad"],
+  "Bundesliga":["Bayern Munich","Bayer Leverkusen","Borussia Dortmund","RB Leipzig"],
+  "Serie A":["Inter","AC Milan","Juventus","Roma","Napoli"],
+  "Ligue 1":["Paris Saint-Germain","Lille","Marseille"]
+ };
+ function s(){try{return JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
+ function save(x){localStorage.setItem('omsCareerStable3',JSON.stringify(x));window.OMS_CURRENT_STATE=x}
+ function ensure(x){if(!x)return x;x.apps=x.apps||0;x.goals=x.goals||0;x.assists=x.assists||0;x.value=x.value||150000;x.reputation=x.reputation||50;x.trophies=x.trophies||0;x.contractYears=x.contractYears||2;x.wage=x.wage||1200;x.formHistory=x.formHistory||[];x.matchHistory=x.matchHistory||[];x.inbox=x.inbox||[];x.transferInterest=x.transferInterest||[];x.seasonGoals=x.seasonGoals||0;x.seasonAssists=x.seasonAssists||0;return x}
+ function navRender(){
+  const tr=document.getElementById('transfers');if(!tr)return;
+  const st=ensure(s());const shortlist=JSON.parse(localStorage.getItem('omsTransferShortlistV1')||'[]');
+  tr.innerHTML='<div class="panel"><div class="eyebrow">PLAYER CAREER · MARKET 2.0</div><h1>TRANSFER CENTER</h1><p class="muted">Scouting, interest, contracts and club targets.</p><div class="kpiGrid"><div class="kpi"><span class="muted">VALUE</span><b>€'+Math.round((st?.value||150000)/1000)+'K</b></div><div class="kpi"><span class="muted">REPUTATION</span><b>'+(st?.reputation||50)+'</b></div><div class="kpi"><span class="muted">SHORTLIST</span><b>'+shortlist.length+'</b></div><div class="kpi"><span class="muted">WAGE</span><b>€'+(st?.wage||1200)+'/w</b></div><div class="kpi"><span class="muted">CONTRACT</span><b>'+(st?.contractYears||2)+'Y</b></div></div><h2 style="margin-top:24px">AVAILABLE TARGETS</h2><div class="marketGrid" id="omsMarket2"></div></div>';
+  const pool=[...(window.OMS_PLAYERS||[])].sort(()=>Math.random()-.5).slice(0,9);
+  document.getElementById('omsMarket2').innerHTML=pool.map((p,i)=>'<div class="playerCard"><span class="tag">'+p[3]+'</span><h3>'+p[0]+'</h3><div class="mini">'+p[1]+' · '+p[2]+'</div><p><b>OVR '+p[4]+'</b></p><button class="action" onclick="window.OMS_TARGET('+i+')">REQUEST INTEREST</button></div>').join('');
+  window.OMS_MARKET2=pool;
+ }
+ window.OMS_TARGET=function(i){
+  const p=window.OMS_MARKET2?.[i];if(!p)return;
+  const st=ensure(s());st.transferInterest=st.transferInterest||[];
+  if(!st.transferInterest.some(x=>x.name===p[0])){st.transferInterest.push({name:p[0],club:p[1],ovr:p[4]});st.inbox.unshift('Agent requested interest in '+p[0]+' from '+p[1]);st.inbox=st.inbox.slice(0,20);save(st);toast('Interest request sent · '+p[0])}else toast('Already tracking '+p[0]);
+  navRender();
+ };
+ function squad(){
+  const v=document.getElementById('squad');if(!v)return;
+  v.innerHTML='<div class="panel"><div class="eyebrow">PLAYER CAREER · CLUB</div><h1>CLUB & PLAYER HUB</h1><p class="muted">Squad competition, teammates and league context.</p><div class="kpiGrid"><div class="kpi"><span class="muted">CLUB</span><b>'+(s()?.club||'Your Club')+'</b></div><div class="kpi"><span class="muted">OVR</span><b>'+(s()?.ovr||67)+'</b></div><div class="kpi"><span class="muted">POSITION</span><b>'+(s()?.pos||'ST')+'</b></div><div class="kpi"><span class="muted">APPS</span><b>'+(s()?.apps||0)+'</b></div><div class="kpi"><span class="muted">GOALS</span><b>'+(s()?.goals||0)+'</b></div></div><h2 style="margin-top:24px">DATABASE PLAYERS</h2><div id="omsClubPlayers"></div></div>';
+  const club=s()?.club;const arr=(window.OMS_PLAYERS||[]).filter(p=>p[1]===club).slice(0,15);
+  document.getElementById('omsClubPlayers').innerHTML=arr.length?arr.map(p=>'<div class="tableRow"><b>'+p[0]+'</b><span>'+p[3]+'</span><span>OVR '+p[4]+'</span><span>'+p[2]+'</span></div>').join(''):'<p class="muted">No database squad is linked to this starting club yet.</p>';
+ }
+ function world(){
+  const v=document.getElementById('world');if(!v)return;
+  const leagues=Object.keys(LEAGUE_TEAMS);
+  v.innerHTML='<div class="panel"><div class="eyebrow">WORLD · FOOTBALL ECOSYSTEM</div><h1>GLOBAL FOOTBALL WORLD</h1><p class="muted">Five leagues, clubs and a living transfer feed.</p><div class="marketGrid">'+leagues.map((l,i)=>'<div class="playerCard"><span class="tag">LEAGUE</span><h3>'+l+'</h3><div class="mini">'+LEAGUE_TEAMS[l].length+' clubs represented</div><p>'+LEAGUE_TEAMS[l].slice(0,4).join(' · ')+'</p></div>').join('')+'</div><h2 style="margin-top:24px">WORLD FEED</h2><div class="news">'+(ensure(s())?.inbox||[]).slice(0,10).map(x=>'<div>🌍 '+x+'</div>').join('')+'</div></div>';
+ }
+ function agent(){
+  const v=document.getElementById('agent');if(!v)return;
+  const st=ensure(s());
+  v.innerHTML='<div class="panel"><div class="eyebrow">AGENT & MONEY · 2.0</div><h1>CONTRACT CENTER</h1><p class="muted">Your agent tracks value, wages and contract length.</p><div class="kpiGrid"><div class="kpi"><span class="muted">MARKET VALUE</span><b>€'+Math.round(st.value/1000)+'K</b></div><div class="kpi"><span class="muted">WEEKLY WAGE</span><b>€'+st.wage+'</b></div><div class="kpi"><span class="muted">YEARS</span><b>'+st.contractYears+'</b></div><div class="kpi"><span class="muted">REPUTATION</span><b>'+st.reputation+'</b></div><div class="kpi"><span class="muted">BONUS</span><b>€'+Math.round(st.wage*8)+'</b></div></div><button class="action" onclick="window.OMS_RENEW()">NEGOTIATE RENEWAL</button></div>';
+ }
+ window.OMS_RENEW=function(){const st=ensure(s());st.contractYears=Math.min(5,st.contractYears+1);st.wage=Math.round(st.wage*1.12);save(st);toast('Contract renewed · wage increased');agent()};
+ function history(){
+  const v=document.getElementById('history');if(!v)return;
+  const st=ensure(s());v.innerHTML='<div class="panel"><div class="eyebrow">CAREER LEGACY · 2.0</div><h1>PLAYER HISTORY</h1><div class="kpiGrid"><div class="kpi"><span class="muted">APPEARANCES</span><b>'+st.apps+'</b></div><div class="kpi"><span class="muted">GOALS</span><b>'+st.goals+'</b></div><div class="kpi"><span class="muted">ASSISTS</span><b>'+st.assists+'</b></div><div class="kpi"><span class="muted">TROPHIES</span><b>'+st.trophies+'</b></div><div class="kpi"><span class="muted">VALUE</span><b>€'+Math.round(st.value/1000)+'K</b></div></div><h2 style="margin-top:24px">MATCH LOG</h2><div class="news">'+(st.matchHistory||[]).slice(-15).reverse().map(x=>'<div>⚽ '+x+'</div>').join('')+'</div></div>';
+ }
+ const oldSim=window.simulateMatch;window.simulateMatch=function(){oldSim();const st=ensure(s());const r=Math.random();st.matchHistory.push('Day '+st.day+' · '+(r<.45?'Win':'Match completed')+' · '+st.goals+' career goals');st.formHistory.push(st.morale);if(st.matchHistory.length>30)st.matchHistory.shift();save(st);};
+ const oldShow=window.show;window.show=function(id,b){oldShow(id,b);if(id==='transfers')setTimeout(navRender,10);if(id==='squad')setTimeout(squad,10);if(id==='world')setTimeout(world,10);if(id==='agent')setTimeout(agent,10);if(id==='history')setTimeout(history,10)};
+ setTimeout(()=>{navRender();squad();world();agent();history()},200);
+})();
 </script></body></html>
