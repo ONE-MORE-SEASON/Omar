@@ -338,4 +338,68 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
  const oldShow=window.show;window.show=function(id,b){oldShow(id,b);if(id==='transfers')setTimeout(navRender,10);if(id==='squad')setTimeout(squad,10);if(id==='world')setTimeout(world,10);if(id==='agent')setTimeout(agent,10);if(id==='history')setTimeout(history,10)};
  setTimeout(()=>{navRender();squad();world();agent();history()},200);
 })();
+</script>
+<style>
+/* MEGA UPDATE 3 — CAREER CONTROL ROOM */
+.m3Grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.m3Card{background:linear-gradient(145deg,#101b35,#0b1226);border:1px solid rgba(90,210,255,.22);border-radius:16px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.m3Card h3{margin:0 0 8px;font-size:16px}.m3Big{font-size:26px;font-weight:900}.m3Small{font-size:12px;opacity:.7}.m3Bar{height:8px;background:#17213b;border-radius:99px;overflow:hidden;margin-top:8px}.m3Fill{height:100%;background:linear-gradient(90deg,#45d6ff,#7cff8d);border-radius:99px}
+.m3Btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.m3Btns button{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}
+.m3Event{padding:12px;border-radius:12px;background:#0b152b;border:1px solid rgba(255,255,255,.07);margin-top:8px}
+@media(max-width:850px){.m3Grid{grid-template-columns:1fr}}
+</style>
+<script>
+(()=> {
+ const KEY='omsMega3V1';
+ function st(){return window.OMS_GET_STATE?window.OMS_GET_STATE():JSON.parse(localStorage.getItem('omsCareerStable3')||'{}')}
+ function save3(x){if(window.OMS_CURRENT_STATE)window.OMS_CURRENT_STATE=x;localStorage.setItem('omsCareerStable3',JSON.stringify(x));if(window.OMS_GET_STATE)window.OMS_GET_STATE=()=>x;try{if(window.save)window.save(x)}catch(e){}}
+ function esc(x){return String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+ function render(){
+   const home=document.getElementById('home'); if(!home)return;
+   let old=document.getElementById('mega3'); if(old)old.remove();
+   const x=st(); x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   const o=x.m3.objectives,c=x.m3.completed;
+   const pct=(a,b)=>Math.min(100,Math.round((a/Math.max(1,b))*100));
+   const box=document.createElement('div');box.id='mega3';box.className='panel';
+   box.innerHTML='<div class="eyebrow">MEGA GAMEPLAY · 3.0</div><h1>CAREER CONTROL ROOM</h1><p class="muted">Train, manage your week, chase objectives and react to career events.</p>'+
+   '<div class="m3Grid">'+
+   '<div class="m3Card"><h3>WEEKLY TRAINING</h3><div class="m3Big">'+x.m3.trainingDays+'/3</div><div class="m3Small">Training sessions this week</div><div class="m3Bar"><div class="m3Fill" style="width:'+pct(x.m3.trainingDays,3)+'%"></div></div><div class="m3Btns"><button onclick="OMS_TRAIN('finishing')">Finishing</button><button onclick="OMS_TRAIN('fitness')">Fitness</button><button onclick="OMS_TRAIN('passing')">Passing</button></div></div>'+
+   '<div class="m3Card"><h3>SEASON OBJECTIVES</h3><div class="m3Small">Appearances</div><b>'+c.apps+' / '+o.apps+'</b><div class="m3Bar"><div class="m3Fill" style="width:'+pct(c.apps,o.apps)+'%"></div></div><div class="m3Small" style="margin-top:8px">Goals: '+c.goals+' / '+o.goals+' · Assists: '+c.assists+' / '+o.assists+'</div></div>'+
+   '<div class="m3Card"><h3>CAREER EVENT</h3><div class="m3Event">'+esc((x.m3.events||[])[0]||'No new event. Simulate a match to generate career moments.')+'</div><div class="m3Btns"><button onclick="OMS_EVENT()">ROLL EVENT</button></div></div>'+
+   '</div>';
+   home.appendChild(box);save3(x);
+ }
+ window.OMS_TRAIN=function(type){
+   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   if(x.m3.trainingDays>=3){toast&&toast('Weekly training limit reached');return}
+   x.m3.trainingDays++;x.fitness=Math.max(55,(x.fitness||80)-3);x.sharp=Math.min(100,(x.sharp||70)+6);
+   if(type==='finishing')x.goals=(x.goals||0)+0;
+   if(type==='fitness')x.fitness=Math.min(100,x.fitness+5);
+   if(type==='passing')x.assists=(x.assists||0)+0;
+   save3(x);toast&&toast(type.toUpperCase()+' training completed');render();
+ };
+ window.OMS_EVENT=function(){
+   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   const events=['Coach says your recent form has been noticed.','Agent reports growing interest from another club.','Teammates praise your latest performance.','You are pushing for a bigger role in the squad.','Scouts have added you to their watchlist.','The manager wants more consistency from you.'];
+   x.m3.events.unshift(events[Math.floor(Math.random()*events.length)]);x.m3.events=x.m3.events.slice(0,6);save3(x);render();
+ };
+ const old=window.simulateMatch;
+ window.simulateMatch=function(){
+   old();
+   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   x.m3.completed.apps=(x.apps||0);
+   x.m3.completed.goals=(x.goals||0);
+   x.m3.completed.assists=(x.assists||0);
+   if(Math.random()<.24)window.OMS_EVENT();
+   save3(x);render();
+ };
+ const oldAdvance=window.advance;
+ if(oldAdvance)window.advance=function(n){
+   oldAdvance(n);
+   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   if((x.day||0)%7===0)x.m3.trainingDays=0;
+   save3(x);render();
+ };
+ setTimeout(render,500);
+})();
 </script></body></html>
