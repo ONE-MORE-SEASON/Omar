@@ -495,4 +495,54 @@ a{color:var(--c-accent)!important}
  if(oldShow)window.show=function(id,b){oldShow(id,b);if(id==='home')setTimeout(renderM5,20)};
  setTimeout(renderM5,650);
 })();
-</script></body></html>
+</script>
+<style id="mega6">
+/* MEGA UPDATE 6.0 — CAREER DECISION BOARD */
+.m6Grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.m6Choice{padding:18px;border-radius:16px;background:linear-gradient(145deg,rgba(20,31,52,.98),rgba(8,15,29,.98));border:1px solid rgba(255,255,255,.08);min-height:185px;display:flex;flex-direction:column}
+.m6Choice h3{margin:8px 0 6px}.m6Choice p{color:#8fa0b8;font-size:12px;line-height:1.5;margin:0;flex:1}
+.m6Pill{display:inline-block;width:max-content;padding:5px 8px;border-radius:999px;background:rgba(66,217,255,.09);border:1px solid rgba(66,217,255,.2);color:#42d9ff;font-size:10px;font-weight:900}
+.m6Decision{margin-top:14px;padding:13px 15px;border-radius:13px;background:rgba(98,242,162,.05);border:1px solid rgba(98,242,162,.18);font-size:12px}
+@media(max-width:850px){.m6Grid{grid-template-columns:1fr}}
+</style>
+<script>
+(()=> {
+ const KEY='omsCareerStable3';
+ const get=()=>window.OMS_GET_STATE?window.OMS_GET_STATE():JSON.parse(localStorage.getItem(KEY)||'{}');
+ const save6=x=>{localStorage.setItem(KEY,JSON.stringify(x));window.OMS_CURRENT_STATE=x;if(window.OMS_GET_STATE)window.OMS_GET_STATE=()=>x;try{window.save(x)}catch(e){}};
+ const ensure=x=>{x=x||{};x.m6=x.m6||{decisions:0,last:'No career decision made yet.'};return x};
+ function render6(){
+   const home=document.getElementById('home');if(!home)return;
+   let old=document.getElementById('mega6Board');if(old)old.remove();
+   const x=ensure(get()), m=x.m6;
+   const box=document.createElement('div');box.id='mega6Board';box.className='panel';box.style.marginTop='18px';
+   box.innerHTML='<div class="eyebrow">MEGA GAMEPLAY · 6.0</div><h2 style="margin:6px 0 4px">CAREER DECISION BOARD</h2><p class="muted" style="margin:0">Make important off-pitch choices. Every decision changes your career state.</p>'+
+   '<div class="m6Grid">'+
+   '<div class="m6Choice"><span class="m6Pill">PERFORMANCE</span><h3>Extra Training</h3><p>Push yourself before the next match. Sharpness rises, but fitness drops.</p><button class="action" onclick="OMS_DECIDE6(1)">CHOOSE →</button></div>'+
+   '<div class="m6Choice"><span class="m6Pill">RECOVERY</span><h3>Protect Your Body</h3><p>Take recovery seriously. Fitness improves and morale gets a small boost.</p><button class="action" onclick="OMS_DECIDE6(2)">CHOOSE →</button></div>'+
+   '<div class="m6Choice"><span class="m6Pill">CAREER</span><h3>Meet Your Agent</h3><p>Discuss your future. Reputation and market value can rise, while the calendar moves forward.</p><button class="action" onclick="OMS_DECIDE6(3)">CHOOSE →</button></div>'+
+   '</div><div class="m6Decision"><b>LAST DECISION:</b> '+String(m.last).replace(/[<>]/g,'')+' <span class="muted">· '+m.decisions+' total</span></div>';
+   home.appendChild(box);
+ }
+ window.OMS_DECIDE6=function(choice){
+   const x=ensure(get());x.m6.decisions++;
+   if(choice===1){
+     x.sharp=Math.min(100,(x.sharp||70)+9);x.fitness=Math.max(35,(x.fitness||80)-6);x.morale=Math.min(100,(x.morale||70)+2);
+     x.m6.last='Extra Training · +9 sharpness · -6 fitness';
+   } else if(choice===2){
+     x.fitness=Math.min(100,(x.fitness||80)+8);x.morale=Math.min(100,(x.morale||70)+5);x.sharp=Math.max(40,(x.sharp||70)-2);
+     x.m6.last='Protect Your Body · +8 fitness · +5 morale';
+   } else {
+     x.reputation=Math.min(100,(x.reputation||50)+4);x.value=Math.round((x.value||150000)*1.025);x.morale=Math.min(100,(x.morale||70)+3);x.day=(x.day||1)+1;
+     x.inbox=x.inbox||[];x.inbox.unshift('Agent meeting completed · your career plan is being reviewed.');x.inbox=x.inbox.slice(0,20);
+     x.m6.last='Agent Meeting · +4 reputation · market value increased · +1 day';
+   }
+   save6(x);render6();toast('Career decision saved');
+ };
+ const oldShow=window.show;
+ if(oldShow)window.show=function(id,b){oldShow(id,b);if(id==='home')setTimeout(render6,20)};
+ setTimeout(render6,900);
+})();
+</script>
+
+</body></html>
