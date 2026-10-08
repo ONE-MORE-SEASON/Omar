@@ -402,4 +402,62 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
  };
  setTimeout(render,500);
 })();
+</script>
+<style id="mega-clean-ui">
+:root{
+ --c-bg:#070b16;--c-panel:#0d1424;--c-panel2:#111a2d;--c-line:rgba(148,163,184,.16);
+ --c-text:#f4f7fb;--c-muted:#8fa0b8;--c-accent:#42d9ff;--c-green:#62f2a2;--c-gold:#ffd166;
+}
+html,body{background:radial-gradient(circle at 50% -10%,#142442 0%,#080d19 42%,#050810 100%)!important;color:var(--c-text)!important}
+body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+#app,.app,.shell{background:transparent!important}
+.panel,.card,.kpi,.m3Card,.playerCard{
+ background:linear-gradient(145deg,rgba(17,26,45,.96),rgba(8,14,27,.96))!important;
+ border:1px solid var(--c-line)!important;border-radius:18px!important;
+ box-shadow:0 16px 45px rgba(0,0,0,.24)!important;
+}
+.panel{position:relative;overflow:hidden}
+.panel:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-green),var(--c-gold));opacity:.9}
+h1,h2,h3{letter-spacing:-.02em!important}
+h1{font-size:clamp(24px,4vw,38px)!important}
+.muted{color:var(--c-muted)!important}
+.eyebrow{color:var(--c-accent)!important;font-weight:900!important;letter-spacing:.14em!important}
+button,.action{
+ background:linear-gradient(135deg,#35cfff,#2ee79a)!important;color:#06111b!important;
+ border:0!important;border-radius:11px!important;font-weight:900!important;
+ box-shadow:0 8px 22px rgba(66,217,255,.12)!important;
+ transition:transform .15s,filter .15s,box-shadow .15s!important
+}
+button:hover,.action:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 12px 28px rgba(66,217,255,.2)!important}
+input,select{
+ background:#0a1120!important;color:#f4f7fb!important;border:1px solid var(--c-line)!important;
+ border-radius:11px!important;outline:none!important
+}
+input:focus,select:focus{border-color:rgba(66,217,255,.7)!important;box-shadow:0 0 0 3px rgba(66,217,255,.08)!important}
+.kpi{padding:18px!important}
+.kpi b,.m3Big{color:#fff!important}
+.m3Grid{gap:16px!important}
+.m3Card{min-height:150px!important}
+.m3Fill{background:linear-gradient(90deg,var(--c-accent),var(--c-green))!important}
+nav,header,.nav{
+ background:rgba(7,11,22,.82)!important;border-color:var(--c-line)!important;
+ backdrop-filter:blur(16px)!important
+}
+a{color:var(--c-accent)!important}
+.news>div,.m3Event,.tableRow{
+ background:rgba(255,255,255,.025)!important;border:1px solid var(--c-line)!important;
+ border-radius:12px!important
+}
+</style>
+<script>
+(()=> {
+ const mark=document.querySelector('main')||document.body;
+ let old=document.getElementById('cleanDetails');
+ if(old)old.remove();
+ const box=document.createElement('div');box.id='cleanDetails';box.className='panel';
+ box.style.marginTop='18px';
+ box.innerHTML='<div class="eyebrow">ONE MORE SEASON · CLEAN EDITION</div><h2 style="margin:6px 0 4px">PLAYER CAREER HQ</h2><p class="muted" style="margin:0">A cleaner career screen with sharper hierarchy, premium cards and detailed progression.</p><div class="m3Grid" style="margin-top:16px"><div class="m3Card"><div class="eyebrow">01 · PERFORMANCE</div><h3>FORM & MOMENTUM</h3><p class="m3Small">Your recent results influence morale, sharpness and reputation.</p></div><div class="m3Card"><div class="eyebrow">02 · MARKET</div><h3>VALUE & INTEREST</h3><p class="m3Small">Your performances build value and attract clubs through your agent.</p></div><div class="m3Card"><div class="eyebrow">03 · LEGACY</div><h3>CAREER HISTORY</h3><p class="m3Small">Matches, goals, assists, trophies and key moments stay connected.</p></div></div>';
+ const home=document.getElementById('home');
+ if(home)home.appendChild(box);
+})();
 </script></body></html>
