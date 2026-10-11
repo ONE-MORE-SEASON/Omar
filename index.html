@@ -2069,9 +2069,9 @@ set('omsHomeScore','—');set('omsAwayScore','—');set('omsMatchSummary','Play 
 }
 function simMatchV6(){
 if(!state)return;ensure(state);
-const s=state;const scheduledDay=Math.max(num(s.day,1),num(s.nextMatchDay,1));s.day=scheduledDay;const opp=pickOpponent(s),dayBefore=scheduledDay;
+const s=state;let scheduledDay=Math.max(num(s.day,1),num(s.nextMatchDay,1));if(scheduledDay>300){s.season=num(s.season,1)+1;scheduledDay=1;s.nextMatchDay=1;s.seasonStats={apps:0,goals:0,assists:0,motm:0,ratingTotal:0,points:0};s.form=[];}s.day=scheduledDay;const opp=pickOpponent(s),dayBefore=scheduledDay;
 const ratingBase=num(s.ovr,67)*0.44+num(s.fitness,90)*0.13+num(s.sharp,80)*0.12+num(s.morale,75)*0.11+17;
-const difficulty=s.difficulty==='legend'?9:s.difficulty==='hard'?5:0;
+const difficulty=s.difficulty==='legend'?4:s.difficulty==='hard'?2:0;
 const teamStrength=cap(ratingBase-difficulty,42,94);
 const gap=(teamStrength-opp.strength)/15;
 const forChance=cap(1.18+gap*0.45+(num(s.sharp,80)-75)/130,0.25,2.5);
@@ -2163,6 +2163,8 @@ if(typeof oldCheck==='function'){
    const before=state?state.season:null;
    oldCheck();
    if(state&&before!==state.season){
+     state.nextMatchDay=1;
+     state.form=[];
      state.seasonStats={apps:0,goals:0,assists:0,motm:0,ratingTotal:0,points:0};
      state.journeyLog=Array.isArray(state.journeyLog)?state.journeyLog:[];
      state.journeyLog.unshift('Season '+state.season+' — new season begins; season statistics reset.');
