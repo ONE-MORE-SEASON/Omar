@@ -60,7 +60,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 </div>
 <div class="muted" style="margin-top:15px">Recent form</div><div class="match-form" id="omsForm"><span>Not played yet</span></div>
 </section></div>
-\n<div class="layout"><section class="panel"><h2>PLAYER CALENDAR</h2><div class="muted">Matches, training and career events.</div><div class="cards"><div class="card active"><div class="eyebrow">NEXT MATCH</div><h3 id="match">Hillcrest Academy (H)</h3><div class="muted">League · Day <span id="matchDay">1</span></div><button class="action" onclick="simulateMatch()">SIMULATE MATCH →</button></div><div class="card"><div class="eyebrow">TIME</div><h3>Simulate 3 Days</h3><div class="muted">Training, recovery and world events.</div><button class="action secondary" onclick="advance(3)">SIMULATE 3 DAYS →</button></div><div class="card"><div class="eyebrow">SEASON</div><h3>Simulate Season</h3><div class="muted">Advance the season quickly.</div><button class="action secondary" onclick="advance(30)">SIMULATE SEASON →</button></div></div></section>
+\n<div class="layout"><section class="panel"><h2>PLAYER CALENDAR</h2><div class="muted">Matches, training and career events.</div><div class="cards"><div class="card active"><div class="eyebrow">NEXT MATCH</div><h3 id="match">Hillcrest Academy (H)</h3><div class="muted">League · Day <span id="matchDay">1</span></div><button class="action" onclick="simulateMatch()">SIMULATE MATCH →</button></div><div class="card"><div class="eyebrow">TIME</div><h3>Simulate 3 Days</h3><div class="muted">Training, recovery and world events.</div><button class="action secondary" onclick="advance(3)">SIMULATE 3 DAYS →</button></div><div class="card"><div class="eyebrow">SEASON</div><h3>Simulate Season</h3><div class="muted">Advance the season quickly.</div><button class="action secondary" onclick="advance(300)">SIMULATE SEASON →</button></div></div></section>
 <section class="panel"><h2>PLAYER STATUS</h2><div class="muted" id="player">Your Player · ST</div><div class="status"><div class="row"><span>OVR</span><div class="bar"><i id="ovrb"></i></div><b id="ovr">67</b></div><div class="row"><span>Fitness</span><div class="bar"><i id="fitb"></i></div><b id="fit">92%</b></div><div class="row"><span>Morale</span><div class="bar"><i id="morb"></i></div><b id="mor">78%</b></div><div class="row"><span>Sharpness</span><div class="bar"><i id="sharpb"></i></div><b id="sharp">85%</b></div></div><button class="action danger" onclick="deleteCareer()">DELETE CAREER</button></section></div>
 <div class="layout"><section class="panel"><h2>SEASON CALENDAR</h2><div class="calendar" id="calendar"></div></section><section class="panel"><h2>LATEST NEWS</h2><div class="muted">The football world changes while you simulate.</div><div class="news" id="news"></div></section></div></section>
 <section id="squad" class="view"><div class="panel"><div class="eyebrow">SQUAD</div><h1>Club & Squad</h1><p class="muted">Your teammates, competition for places and squad status.</p><div class="news"><div>Starting XI · Competition for your position is active.</div><div>Manager · Your performances affect selection.</div><div>Squad · Fitness and sharpness influence minutes.</div></div></div></section>
@@ -2180,5 +2180,11 @@ document.addEventListener('click',e=>{
  },0);
 });
 })();
+</script>
+<script id="omsJourneyNoSkipV6">
+window.omsNextJourneyDecision=function(){
+ if(!state){toast('Start a career first');return}
+ toast('Choose A or B to continue — your decision affects your career.');
+};
 </script>
 </body></html>
