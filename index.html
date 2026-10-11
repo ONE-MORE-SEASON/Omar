@@ -75,7 +75,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 const KEY='omsCareerStable3';let state=null;window.OMS_GET_STATE=()=>state;
 const tabs=[['HOME','home'],['SQUAD','squad'],['TRANSFERS','transfers'],['ACADEMY','academy'],['DEVELOPMENT','development'],['AGENT','agent'],['WORLD','world'],['HISTORY','history'],['JOURNEY','journey']];
 const nav=document.getElementById('nav');tabs.forEach(([name,id],i)=>{const b=document.createElement('button');b.textContent=name;b.onclick=()=>show(id,b);if(i===0)b.classList.add('active');nav.appendChild(b)});
-function beginCareer(){const name=document.getElementById('name').value.trim();if(!name){alert('Skriv ett spelarnamn först.');return}state={name,age:+document.getElementById('age').value,pos:document.getElementById('pos').value,nation:document.getElementById('nation').value,club:document.getElementById('club').value,preferredFoot:document.getElementById('omsFoot')?.value||'Right',careerPace:document.getElementById('omsPace')?.value||'classic',difficulty:document.getElementById('omsDifficulty')?.value||'normal',startingRoute:document.getElementById('omsRoute')?.value||'academy',journeyDecision:0,journeyHeadlines:[],journeyLog:[],journeyFlags:{},day:1,season:1,ovr:67,fitness:92,morale:78,sharp:85,wins:0,draws:0,losses:0};save();openApp();render()}
+function beginCareer(){const name=document.getElementById('name').value.trim();if(!name){alert('Skriv ett spelarnamn först.');return}state={name,age:+document.getElementById('age').value,pos:document.getElementById('pos').value,nation:document.getElementById('nation').value,club:document.getElementById('club').value,preferredFoot:document.getElementById('omsFoot')?.value||'Right',careerPace:document.getElementById('omsPace')?.value||'classic',difficulty:document.getElementById('omsDifficulty')?.value||'normal',startingRoute:document.getElementById('omsRoute')?.value||'academy',journeyDecision:0,journeyHeadlines:[],journeyLog:[],journeyFlags:{},day:1,nextMatchDay:1,season:1,ovr:67,fitness:92,morale:78,sharp:85,wins:0,draws:0,losses:0};save();openApp();render()}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function openApp(){document.getElementById('creator').classList.add('hidden');document.getElementById('app').classList.remove('hidden')}
 function show(id,b){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');nav.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
 function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1800)}
@@ -2039,10 +2039,13 @@ s.form=Array.isArray(s.form)?s.form:[];
 s.newsItems=Array.isArray(s.newsItems)?s.newsItems:[];
 }
 function pickOpponent(s){
-const index=Math.abs((num(s.day,1)*3+num(s.season,1)*5+String(s.club||'').length)%opponents.length);
-let o=opponents[index];
-if(o.name===s.club)o=opponents[(index+4)%opponents.length];
-return o;
+const clubStrength={'Hillcrest Academy':59,'BK Häcken':69,'Real Sociedad':74,'Villarreal':75,'Aston Villa':78};
+const base=clubStrength[s.club]||68;
+const target=base+(s.difficulty==='legend'?5:s.difficulty==='hard'?2:0);
+const eligible=opponents.filter(o=>o.name!==s.club&&Math.abs(o.strength-target)<=9);
+const pool=eligible.length?eligible:opponents.filter(o=>o.name!==s.club);
+const index=Math.abs((num(s.day,1)*3+num(s.season,1)*5+String(s.club||'').length)%pool.length);
+return pool[index];
 }
 function renderEngine(){
 if(!state)return;ensure(state);
@@ -2066,14 +2069,14 @@ set('omsHomeScore','—');set('omsAwayScore','—');set('omsMatchSummary','Play 
 }
 function simMatchV6(){
 if(!state)return;ensure(state);
-const s=state,opp=pickOpponent(s),dayBefore=num(s.day,1);
+const s=state;const scheduledDay=Math.max(num(s.day,1),num(s.nextMatchDay,1));s.day=scheduledDay;const opp=pickOpponent(s),dayBefore=scheduledDay;
 const ratingBase=num(s.ovr,67)*0.44+num(s.fitness,90)*0.13+num(s.sharp,80)*0.12+num(s.morale,75)*0.11+17;
 const difficulty=s.difficulty==='legend'?9:s.difficulty==='hard'?5:0;
 const teamStrength=cap(ratingBase-difficulty,42,94);
 const gap=(teamStrength-opp.strength)/15;
 const forChance=cap(1.18+gap*0.45+(num(s.sharp,80)-75)/130,0.25,2.5);
 const againstChance=cap(1.15-gap*0.36,0.3,2.2);
-function goals(lambda){let g=0;for(let i=0;i<5;i++){if(Math.random()<lambda/(i+lambda+1.5))g++;}return Math.min(5,g)}
+function goals(lambda){const limit=Math.exp(-Math.max(0.05,Math.min(2.8,lambda)));let product=1,g=0;do{g++;product*=Math.random()}while(product>limit&&g<7);return Math.min(6,Math.max(0,g-1))}
 let gf=goals(forChance),ga=goals(againstChance);
 if(Math.random()<0.14&&gf===0)gf=1;
 const win=gf>ga,draw=gf===ga,loss=gf<ga;
@@ -2099,7 +2102,7 @@ const ss=s.seasonStats,cs=s.careerStats;
 ss.apps++;ss.goals+=goalsPlayer;ss.assists+=assists;ss.ratingTotal+=rating;ss.points+=win?3:draw?1:0;if(motm)ss.motm++;
 cs.apps++;cs.goals+=goalsPlayer;cs.assists+=assists;if(motm)cs.motm++;if(win)cs.wins++;else if(draw)cs.draws++;else cs.losses++;
 s.wins=num(s.wins)+(win?1:0);s.draws=num(s.draws)+(draw?1:0);s.losses=num(s.losses)+(loss?1:0);
-s.day=dayBefore+1;s.fitness=cap(num(s.fitness,90)-7+(Math.random()<0.18?2:0),30,100);s.sharp=cap(num(s.sharp,80)+5,30,100);
+s.day=dayBefore+1;s.nextMatchDay=dayBefore+7;s.fitness=cap(num(s.fitness,90)-7+(Math.random()<0.18?2:0),30,100);s.sharp=cap(num(s.sharp,80)+5,30,100);
 s.morale=cap(num(s.morale,75)+(win?4:draw?1:-3),20,100);
 if(Math.random()<Math.max(0.01,(65-num(s.fitness,90))*0.0025)){s.injuredDays=2+Math.floor(Math.random()*5);events.push('🩺 Fatigue warning: staff recommend extra recovery.')}
 if(rating>=8.2&&s.ovr<99&&Math.random()<0.28){s.ovr++;events.push('⬆️ Excellent form contributes to player development.')}
