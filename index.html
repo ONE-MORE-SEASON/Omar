@@ -14,13 +14,53 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 .layout{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px}.panel{background:linear-gradient(145deg,#091e30f7,#05121ef7);border:1px solid #184b6e;border-radius:18px;padding:20px;box-shadow:0 14px 40px #0006}.panel h2{margin:0 0 4px;font-size:18px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.card{padding:16px;border:1px solid #255a7d;border-radius:14px;background:#0a2237;min-height:150px}.card.active{border-color:var(--green);box-shadow:0 0 25px #13cb9625}.card h3{margin:7px 0}.action{width:100%;margin-top:18px}.secondary{background:#102d47;border:1px solid #28638c}.status{display:grid;gap:12px;margin-top:15px}.row{display:grid;grid-template-columns:75px 1fr 45px;gap:8px;align-items:center;font-size:12px}.bar{height:8px;background:#07131e;border-radius:20px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#0bb982,#60e7c3)}.calendar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.event{padding:14px;border:1px solid #205273;border-radius:13px;background:#071a2a;min-height:105px}.today{border-color:var(--green);background:#07352f}.news{display:grid;gap:6px;margin-top:12px}.news div{padding:11px;border-bottom:1px solid #17384f;color:#c8dcee}.danger{background:#4b1b25;border:1px solid #8b3a48;margin-top:18px}.toast{position:fixed;right:20px;bottom:20px;padding:13px 17px;border:1px solid #2a6d91;background:#071b2b;border-radius:11px;opacity:0;transform:translateY(10px);transition:.2s}.toast.show{opacity:1;transform:none}
 @media(max-width:850px){.creatorCard{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.opponent{width:52%}.cards{grid-template-columns:1fr}.calendar{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.brand,.day{display:none}.hero{display:block;min-height:360px}.opponent{width:100%;margin-top:25px}.formGrid{grid-template-columns:1fr}.full{grid-column:auto}main{padding:14px}.calendar{grid-template-columns:1fr}.nav button{padding:24px 9px}}
+
+/* Match engine v6 — clearer match feedback and career statistics */
+.match-engine{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-top:18px}
+.match-report{background:linear-gradient(130deg,#0b2a40,#071521);border:1px solid #286487;border-radius:18px;padding:20px}
+.match-scoreline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}
+.match-team{flex:1;font-size:12px;font-weight:850;color:#c6dcee}
+.match-team:last-child{text-align:right}
+.match-score{font-size:34px;font-weight:950;letter-spacing:2px;white-space:nowrap}
+.match-score .dash{color:#6f91aa;padding:0 5px}
+.match-rating{display:inline-flex;align-items:center;gap:7px;background:#073b32;border:1px solid #168e70;border-radius:9px;padding:8px 11px;font-weight:900}
+.match-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.match-stat{background:#0a2234;border:1px solid #1d4c6a;border-radius:12px;padding:12px}
+.match-stat b{display:block;font-size:22px;margin-top:5px}
+.match-events{display:grid;gap:7px;margin-top:12px}
+.match-event{padding:9px 10px;border-left:3px solid var(--green);background:#0a2234;border-radius:0 8px 8px 0;font-size:12px;color:#d5e6f4}
+.match-event.dim{border-color:#3b6c8b}
+.match-form{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.match-form span{font-size:10px;font-weight:900;padding:5px 8px;border-radius:6px;background:#102b40;color:#a9c5da}
+.match-form .win{background:#0b493a;color:#7af0c7}.match-form .draw{background:#423a1a;color:#ffe08a}.match-form .loss{background:#49212b;color:#ffb6c0}
+@media(max-width:850px){.match-engine{grid-template-columns:1fr}.match-stat-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <section id="creator" class="creator"><div class="creatorCard"><div class="intro"><div class="os">OS</div><div class="eyebrow">ONE MORE SEASON · CAREER SIM</div><h1>Start your football career.</h1><p>Create your player, choose your position and club, then simulate your career day by day. No 3D and no minigames — this is a pure career simulation.</p></div><div class="form"><div class="eyebrow">CAREER CREATOR</div><h2>Player information</h2><div class="formGrid"><div class="field full"><label>Name</label><input id="name" placeholder="Player name"></div><div class="field"><label>Age</label><input id="age" type="number" min="16" max="40" value="17"></div><div class="field"><label>Position</label><select id="pos"><option>ST</option><option>CF</option><option>CAM</option><option>CM</option><option>LW</option><option>RW</option><option>LB</option><option>CB</option><option>RB</option><option>GK</option></select></div><div class="field"><label>Nationality</label><select id="nation"><option>Sweden</option><option>England</option><option>Spain</option><option>France</option><option>Brazil</option><option>Germany</option><option>Portugal</option><option>Argentina</option></select></div><div class="field"><label>Starting club</label><select id="club"><option>Hillcrest Academy</option><option>BK Häcken</option><option>Real Sociedad</option><option>Villarreal</option><option>Aston Villa</option></select></div><div class="field"><label>Preferred foot</label><select id="omsFoot"><option>Right</option><option>Left</option><option>Both</option></select></div><div class="field"><label>Career pace</label><select id="omsPace"><option value="classic">Classic · 11 key decisions</option><option value="quick">Quick · faster calendar</option><option value="immersive">Immersive · more story events</option></select></div><div class="field"><label>Difficulty</label><select id="omsDifficulty"><option value="normal">Normal</option><option value="hard">Hard</option><option value="legend">Legend</option></select></div><div class="field"><label>Starting route</label><select id="omsRoute"><option value="academy">Youth academy</option><option value="bench">First-team bench</option><option value="starter">First-team starter</option><option value="loan">Loan pathway</option></select></div></div><button class="start" onclick="beginCareer()">BEGIN CAREER →</button></div></div></section>
 <div id="app" class="hidden"><header class="top"><div class="logo">OS</div><div class="brand">ONE MORE SEASON<small>CAREER SIM</small></div><nav id="nav" class="nav"></nav><div class="day">DAY <span id="day">1</span><small id="season">SEASON 1</small></div><div class="gear">⚙</div></header><main>
 <section id="home" class="view active"><div class="hero"><div><div class="eyebrow">SIMULATION CENTER</div><h1>Clear skies, bigger dreams.</h1><div class="muted">Build your career one decision at a time.</div></div><div class="opponent"><div class="eyebrow">NEXT OPPONENT</div><strong id="opp">Hillcrest Academy (H)</strong><div class="chips"><span>LEAGUE</span><span>•</span><span>SIMULATION</span><span>•</span><span id="eventDay">DAY 1</span></div></div></div>
-<div class="layout"><section class="panel"><h2>PLAYER CALENDAR</h2><div class="muted">Matches, training and career events.</div><div class="cards"><div class="card active"><div class="eyebrow">NEXT MATCH</div><h3 id="match">Hillcrest Academy (H)</h3><div class="muted">League · Day <span id="matchDay">1</span></div><button class="action" onclick="simulateMatch()">SIMULATE MATCH →</button></div><div class="card"><div class="eyebrow">TIME</div><h3>Simulate 3 Days</h3><div class="muted">Training, recovery and world events.</div><button class="action secondary" onclick="advance(3)">SIMULATE 3 DAYS →</button></div><div class="card"><div class="eyebrow">SEASON</div><h3>Simulate Season</h3><div class="muted">Advance the season quickly.</div><button class="action secondary" onclick="advance(30)">SIMULATE SEASON →</button></div></div></section>
+
+<div class="match-engine" id="omsMatchEngine">
+<section class="match-report">
+<div class="eyebrow">MATCH CENTRE · LIVE CAREER</div><h2 style="margin:7px 0 0">Last match report</h2>
+<div class="match-scoreline"><div class="match-team" id="omsHomeName">Your club</div><div class="match-score"><span id="omsHomeScore">—</span><span class="dash">:</span><span id="omsAwayScore">—</span></div><div class="match-team" id="omsAwayName">Opponent</div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span class="muted" id="omsMatchSummary">Play your first match to create a report.</span><span class="match-rating" id="omsMatchRating">— / 10</span></div>
+<div class="match-events" id="omsMatchEvents"><div class="match-event dim">Your match moments will appear here.</div></div>
+</section>
+<section class="panel">
+<div class="eyebrow">CAREER PERFORMANCE</div><h2 style="margin:7px 0 14px">Season statistics</h2>
+<div class="match-stat-grid">
+<div class="match-stat"><span class="muted">Apps</span><b id="omsApps">0</b></div>
+<div class="match-stat"><span class="muted">Goals</span><b id="omsGoals">0</b></div>
+<div class="match-stat"><span class="muted">Assists</span><b id="omsAssists">0</b></div>
+<div class="match-stat"><span class="muted">Avg rating</span><b id="omsAvgRating">—</b></div>
+<div class="match-stat"><span class="muted">MOTM</span><b id="omsMotm">0</b></div>
+<div class="match-stat"><span class="muted">Points</span><b id="omsPoints">0</b></div>
+</div>
+<div class="muted" style="margin-top:15px">Recent form</div><div class="match-form" id="omsForm"><span>Not played yet</span></div>
+</section></div>
+\n<div class="layout"><section class="panel"><h2>PLAYER CALENDAR</h2><div class="muted">Matches, training and career events.</div><div class="cards"><div class="card active"><div class="eyebrow">NEXT MATCH</div><h3 id="match">Hillcrest Academy (H)</h3><div class="muted">League · Day <span id="matchDay">1</span></div><button class="action" onclick="simulateMatch()">SIMULATE MATCH →</button></div><div class="card"><div class="eyebrow">TIME</div><h3>Simulate 3 Days</h3><div class="muted">Training, recovery and world events.</div><button class="action secondary" onclick="advance(3)">SIMULATE 3 DAYS →</button></div><div class="card"><div class="eyebrow">SEASON</div><h3>Simulate Season</h3><div class="muted">Advance the season quickly.</div><button class="action secondary" onclick="advance(30)">SIMULATE SEASON →</button></div></div></section>
 <section class="panel"><h2>PLAYER STATUS</h2><div class="muted" id="player">Your Player · ST</div><div class="status"><div class="row"><span>OVR</span><div class="bar"><i id="ovrb"></i></div><b id="ovr">67</b></div><div class="row"><span>Fitness</span><div class="bar"><i id="fitb"></i></div><b id="fit">92%</b></div><div class="row"><span>Morale</span><div class="bar"><i id="morb"></i></div><b id="mor">78%</b></div><div class="row"><span>Sharpness</span><div class="bar"><i id="sharpb"></i></div><b id="sharp">85%</b></div></div><button class="action danger" onclick="deleteCareer()">DELETE CAREER</button></section></div>
 <div class="layout"><section class="panel"><h2>SEASON CALENDAR</h2><div class="calendar" id="calendar"></div></section><section class="panel"><h2>LATEST NEWS</h2><div class="muted">The football world changes while you simulate.</div><div class="news" id="news"></div></section></div></section>
 <section id="squad" class="view"><div class="panel"><div class="eyebrow">SQUAD</div><h1>Club & Squad</h1><p class="muted">Your teammates, competition for places and squad status.</p><div class="news"><div>Starting XI · Competition for your position is active.</div><div>Manager · Your performances affect selection.</div><div>Squad · Fitness and sharpness influence minutes.</div></div></div></section>
@@ -1979,4 +2019,103 @@ window.beginCareer=function(){oldBegin();const s=getState();if(!s)return;s.prefe
 document.addEventListener('click',e=>{const b=e.target.closest('#nav button');if(b&&b.textContent==='JOURNEY')setTimeout(renderJourney,0)});
 const style=document.createElement('style');style.textContent='#journey .cards{grid-template-columns:repeat(3,minmax(0,1fr))}#journey .layout{grid-template-columns:1.5fr 1fr}#journey .panel .panel{padding:15px}@media(max-width:850px){#journey .cards,#journey .layout{grid-template-columns:1fr!important}}';document.head.appendChild(style);
 })();
-</script></body></html>
+</script>
+<script id="oms-match-engine-v6">
+(function(){
+const opponents=[
+{name:'Real Sociedad',strength:70},{name:'Villarreal',strength:72},{name:'Aston Villa',strength:76},
+{name:'Real Betis',strength:71},{name:'Feyenoord',strength:73},{name:'Lille',strength:72},
+{name:'Sporting CP',strength:74},{name:'Sevilla',strength:73},{name:'Eintracht Frankfurt',strength:74},
+{name:'Bologna',strength:72},{name:'Brighton',strength:75},{name:'Real Madrid',strength:88},
+{name:'Arsenal',strength:86},{name:'Inter',strength:85},{name:'PSG',strength:87}
+];
+function num(v,fallback=0){const n=Number(v);return Number.isFinite(n)?n:fallback}
+function cap(v,min=0,max=100){return Math.max(min,Math.min(max,v))}
+function ensure(s){
+s.matchHistory=Array.isArray(s.matchHistory)?s.matchHistory:[];
+s.seasonStats=s.seasonStats||{apps:0,goals:0,assists:0,motm:0,ratingTotal:0,points:0};
+s.careerStats=s.careerStats||{apps:0,goals:0,assists:0,motm:0,wins:0,draws:0,losses:0};
+s.form=Array.isArray(s.form)?s.form:[];
+s.newsItems=Array.isArray(s.newsItems)?s.newsItems:[];
+}
+function pickOpponent(s){
+const index=Math.abs((num(s.day,1)*3+num(s.season,1)*5+String(s.club||'').length)%opponents.length);
+let o=opponents[index];
+if(o.name===s.club)o=opponents[(index+4)%opponents.length];
+return o;
+}
+function renderEngine(){
+if(!state)return;ensure(state);
+const last=state.matchHistory[0],ss=state.seasonStats,cs=state.careerStats;
+const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+set('omsApps',ss.apps);set('omsGoals',ss.goals);set('omsAssists',ss.assists);set('omsMotm',ss.motm);set('omsPoints',ss.points);
+set('omsAvgRating',ss.apps?(ss.ratingTotal/ss.apps).toFixed(1):'—');
+const form=document.getElementById('omsForm');
+if(form)form.innerHTML=state.form.length?state.form.slice(0,5).map(x=>'<span class="'+(x==='W'?'win':x==='D'?'draw':'loss')+'">'+x+'</span>').join(''):'<span>Not played yet</span>';
+if(last){
+set('omsHomeName',last.club);set('omsAwayName',last.opponent);set('omsHomeScore',last.goalsFor);set('omsAwayScore',last.goalsAgainst);
+set('omsMatchSummary',last.result+' · '+last.competition+' · '+last.dayLabel);
+set('omsMatchRating',last.rating.toFixed(1)+' / 10');
+const events=document.getElementById('omsMatchEvents');
+if(events)events.innerHTML=last.events.map((x,i)=>'<div class="match-event '+(i>1?'dim':'')+'">'+x+'</div>').join('');
+}else{
+set('omsHomeName',state.club||'Your club');set('omsAwayName',pickOpponent(state).name);
+set('omsHomeScore','—');set('omsAwayScore','—');set('omsMatchSummary','Play your first match to create a report.');set('omsMatchRating','— / 10');
+}
+}
+function simMatchV6(){
+if(!state)return;ensure(state);
+const s=state,opp=pickOpponent(s),dayBefore=num(s.day,1);
+const ratingBase=num(s.ovr,67)*0.44+num(s.fitness,90)*0.13+num(s.sharp,80)*0.12+num(s.morale,75)*0.11+17;
+const difficulty=s.difficulty==='legend'?9:s.difficulty==='hard'?5:0;
+const teamStrength=cap(ratingBase-difficulty,42,94);
+const gap=(teamStrength-opp.strength)/15;
+const forChance=cap(1.18+gap*0.45+(num(s.sharp,80)-75)/130,0.25,2.5);
+const againstChance=cap(1.15-gap*0.36,0.3,2.2);
+function goals(lambda){let g=0;for(let i=0;i<5;i++){if(Math.random()<lambda/(i+lambda+1.5))g++;}return Math.min(5,g)}
+let gf=goals(forChance),ga=goals(againstChance);
+if(Math.random()<0.14&&gf===0)gf=1;
+const win=gf>ga,draw=gf===ga,loss=gf<ga;
+const outcome=win?'W':draw?'D':'L';
+const position=s.pos||'ST';
+let goalChance=['ST','CF','LW','RW'].includes(position)?0.47:['CAM','CM','LM','RM'].includes(position)?0.25:['CDM','LB','RB','CB'].includes(position)?0.10:0.015;
+let goalsPlayer=0,assists=0;
+if(gf>0&&Math.random()<goalChance+num(s.ovr,67)/400)goalsPlayer=1+(gf>1&&Math.random()<0.24?1:0);
+if(gf>0&&Math.random()<(position==='CAM'||position==='CM'?0.48:0.25))assists=1;
+goalsPlayer=Math.min(goalsPlayer,gf);assists=Math.min(assists,Math.max(0,gf-goalsPlayer));
+const involvement=goalsPlayer*1.15+assists*0.7;
+const rating=cap(6.1+(win?0.65:draw?0.15:-0.55)+(num(s.sharp,80)-75)*0.018+(num(s.fitness,90)-75)*0.012+involvement+(Math.random()*0.9-0.45),4.5,10);
+const motm=rating>=8.4||(rating>=8.0&&involvement>=1.15);
+const events=[];
+if(gf>0)events.push(goalsPlayer?('⚽ '+s.name+' scores '+(goalsPlayer>1?'twice':'a goal')+' for '+s.club+'.'):( '⚽ '+s.club+' find the net '+gf+(gf===1?' time.':' times.')));
+if(assists)events.push('🎯 '+s.name+' records an assist.');
+events.push(motm?'⭐ Player of the Match — a standout performance.':rating>=7.3?'📈 A strong display earns positive ratings.':rating<5.8?'📉 A difficult match; the next performance matters.':'🧠 A steady performance from '+s.name+'.');
+events.push(win?'🏁 Three points secured.':draw?'🤝 The teams share the points.':'🏁 The team leaves without points.');
+const record={club:s.club||'Your club',opponent:opp.name,opponentStrength:opp.strength,goalsFor:gf,goalsAgainst:ga,result:win?'WIN':draw?'DRAW':'LOSS',outcome,rating,goals:goalsPlayer,assists,motm,competition:dayBefore%7===0?'Cup':'League',dayLabel:'S'+s.season+' · D'+dayBefore,season:s.season,day:dayBefore,events};
+s.matchHistory.unshift(record);s.matchHistory=s.matchHistory.slice(0,40);
+s.form.unshift(outcome);s.form=s.form.slice(0,5);
+const ss=s.seasonStats,cs=s.careerStats;
+ss.apps++;ss.goals+=goalsPlayer;ss.assists+=assists;ss.ratingTotal+=rating;ss.points+=win?3:draw?1:0;if(motm)ss.motm++;
+cs.apps++;cs.goals+=goalsPlayer;cs.assists+=assists;if(motm)cs.motm++;if(win)cs.wins++;else if(draw)cs.draws++;else cs.losses++;
+s.wins=num(s.wins)+(win?1:0);s.draws=num(s.draws)+(draw?1:0);s.losses=num(s.losses)+(loss?1:0);
+s.day=dayBefore+1;s.fitness=cap(num(s.fitness,90)-7+(Math.random()<0.18?2:0),30,100);s.sharp=cap(num(s.sharp,80)+5,30,100);
+s.morale=cap(num(s.morale,75)+(win?4:draw?1:-3),20,100);
+if(Math.random()<Math.max(0.01,(65-num(s.fitness,90))*0.0025)){s.injuredDays=2+Math.floor(Math.random()*5);events.push('🩺 Fatigue warning: staff recommend extra recovery.')}
+if(rating>=8.2&&s.ovr<99&&Math.random()<0.28){s.ovr++;events.push('⬆️ Excellent form contributes to player development.')}
+if(rating<5.4&&s.morale<45)s.sharp=cap(s.sharp-2,30,100);
+const headline=win?s.name+' shines as '+s.club+' take all three points':draw?s.name+' and '+s.club+' settle for a draw':s.name+' faces a setback after '+s.club+' defeat';
+s.newsItems.unshift(headline);s.newsItems=s.newsItems.slice(0,5);
+if(typeof checkSeason==='function')checkSeason();
+if(typeof save==='function')save();
+if(typeof render==='function')render();
+renderEngine();
+if(typeof toast==='function')toast((win?'WIN ':draw?'DRAW ':'LOSS ')+gf+'–'+ga+' · Rating '+rating.toFixed(1));
+}
+window.simulateMatch=simMatchV6;
+const oldRender=window.render;
+window.render=function(){if(typeof oldRender==='function')oldRender();renderEngine()};
+document.addEventListener('click',e=>{const b=e.target.closest('#nav button');if(b&&b.textContent==='HOME')setTimeout(renderEngine,0)});
+renderEngine();
+})();
+</script>
+\n</body></html>
