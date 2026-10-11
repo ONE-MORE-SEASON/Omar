@@ -66,7 +66,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 <section id="squad" class="view"><div class="panel"><div class="eyebrow">SQUAD</div><h1>Club & Squad</h1><p class="muted">Your teammates, competition for places and squad status.</p><div class="news"><div>Starting XI · Competition for your position is active.</div><div>Manager · Your performances affect selection.</div><div>Squad · Fitness and sharpness influence minutes.</div></div></div></section>
 <section id="transfers" class="view"><div class="panel"><div class="eyebrow">TRANSFERS</div><h1>Transfer Center</h1><p class="muted">Clubs can show interest as your reputation grows.</p><div class="news"><div>Transfer rumours will appear as the calendar advances.</div><div>Agent · Contract opportunities can develop over time.</div></div></div></section>
 <section id="academy" class="view"><div class="panel"><div class="eyebrow">ACADEMY</div><h1>Academy</h1><p class="muted">Youth development and future prospects.</p></div></section>
-<section id="development" class="view"><div class="panel"><div class="eyebrow">DEVELOPMENT</div><h1>Development</h1><p class="muted">Training focus, progression, fitness and sharpness.</p><button class="action" onclick="toast('Development centre opened')">OPEN DEVELOPMENT</button></div></section>
+<section id="development" class="view"><div class="panel"><div class="eyebrow">DEVELOPMENT CENTRE</div><h1>Build your player</h1><p class="muted">Choose a training plan. Every session trades energy for a different benefit, and your progress is saved with your career.</p><div class="cards"><div class="card"><div class="eyebrow">ATTACK</div><h3>Finishing &amp; movement</h3><p class="muted">Improve sharpness and your chance to grow as an attacker.</p><button class="action" onclick="omsTrainV6('attack')">TRAIN ATTACK →</button></div><div class="card"><div class="eyebrow">TACTICS</div><h3>Position &amp; decisions</h3><p class="muted">Build tactical development and manager trust.</p><button class="action secondary" onclick="omsTrainV6('tactics')">TRAIN TACTICS →</button></div><div class="card"><div class="eyebrow">RECOVERY</div><h3>Recovery session</h3><p class="muted">Restore fitness and protect your form.</p><button class="action secondary" onclick="omsTrainV6('recovery')">RECOVER →</button></div></div><div class="panel" style="margin-top:16px"><div class="eyebrow">TRAINING RECORD</div><h2 id="omsTrainingSummary">No training sessions yet.</h2><div class="muted" id="omsTrainingLog">Your training choices will appear here.</div></div></div></section>
 <section id="agent" class="view"><div class="panel"><div class="eyebrow">AGENT</div><h1>Agent & Money</h1><p class="muted">Contracts, wages, bonuses and club opportunities.</p></div></section>
 <section id="world" class="view"><div class="panel"><div class="eyebrow">WORLD</div><h1>Football World</h1><p class="muted">Transfers, injuries, managers and major football events.</p></div></section>
 <section id="history" class="view"><div class="panel"><div class="eyebrow">HISTORY</div><h1>Career History</h1><p class="muted">Season results, awards and career legacy.</p></div></section>
@@ -2050,6 +2050,7 @@ const last=state.matchHistory[0],ss=state.seasonStats,cs=state.careerStats;
 const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
 set('omsApps',ss.apps);set('omsGoals',ss.goals);set('omsAssists',ss.assists);set('omsMotm',ss.motm);set('omsPoints',ss.points);
 set('omsAvgRating',ss.apps?(ss.ratingTotal/ss.apps).toFixed(1):'—');
+const news=document.getElementById('news');if(news&&state.newsItems&&state.newsItems.length)news.innerHTML=state.newsItems.map((x,i)=>'<div>⚽ '+x+' <span class="muted">'+(i+1)+' recent</span></div>').join('');
 const form=document.getElementById('omsForm');
 if(form)form.innerHTML=state.form.length?state.form.slice(0,5).map(x=>'<span class="'+(x==='W'?'win':x==='D'?'draw':'loss')+'">'+x+'</span>').join(''):'<span>Not played yet</span>';
 if(last){
@@ -2118,4 +2119,66 @@ document.addEventListener('click',e=>{const b=e.target.closest('#nav button');if
 renderEngine();
 })();
 </script>
-\n</body></html>
+\n
+<script id="omsTrainingSystemV6">
+(function(){
+window.omsTrainV6=function(type){
+ if(!state){toast('Start a career first');return}
+ state.trainingHistory=Array.isArray(state.trainingHistory)?state.trainingHistory:[];
+ const oldOVR=Number(state.ovr)||67;
+ if(type==='attack'){
+   state.sharp=Math.max(30,Math.min(100,(Number(state.sharp)||0)+6));
+   state.fitness=Math.max(25,Math.min(100,(Number(state.fitness)||0)-7));
+   state.trainingAttack=(state.trainingAttack||0)+1;
+   if(state.ovr<99&&Math.random()<0.25){state.ovr++;toast('Great session — OVR increased!')}
+ }else if(type==='tactics'){
+   state.fitness=Math.max(25,Math.min(100,(Number(state.fitness)||0)-4));
+   state.morale=Math.max(20,Math.min(100,(Number(state.morale)||0)+2));
+   state.development=(state.development||0)+2;
+   state.managerTrust=(state.managerTrust||0)+2;
+ }else if(type==='recovery'){
+   state.fitness=Math.max(30,Math.min(100,(Number(state.fitness)||0)+13));
+   state.sharp=Math.max(30,Math.min(100,(Number(state.sharp)||0)-1));
+   state.injuredDays=Math.max(0,(Number(state.injuredDays)||0)-1);
+ }
+ const label=type==='attack'?'Finishing & movement':type==='tactics'?'Position & decisions':'Recovery session';
+ state.trainingHistory.unshift({day:state.day,season:state.season,type:label,ovrBefore:oldOVR,ovrAfter:state.ovr});
+ state.trainingHistory=state.trainingHistory.slice(0,12);
+ state.day=(Number(state.day)||1)+1;
+ if(typeof checkSeason==='function')checkSeason();
+ if(typeof save==='function')save();
+ if(typeof render==='function')render();
+ const summary=document.getElementById('omsTrainingSummary');
+ const log=document.getElementById('omsTrainingLog');
+ if(summary)summary.textContent=label+' completed · Season '+state.season;
+ if(log)log.textContent=state.trainingHistory.slice(0,5).map(x=>'S'+x.season+' · Day '+x.day+' — '+x.type+(x.ovrAfter>x.ovrBefore?' · OVR +1':'')).join('  |  ');
+ toast(label+' completed · Day advanced');
+};
+const oldCheck=window.checkSeason;
+if(typeof oldCheck==='function'){
+ window.checkSeason=function(){
+   const before=state?state.season:null;
+   oldCheck();
+   if(state&&before!==state.season){
+     state.seasonStats={apps:0,goals:0,assists:0,motm:0,ratingTotal:0,points:0};
+     state.journeyLog=Array.isArray(state.journeyLog)?state.journeyLog:[];
+     state.journeyLog.unshift('Season '+state.season+' — new season begins; season statistics reset.');
+     state.journeyLog=state.journeyLog.slice(0,15);
+     save();
+   }
+ };
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('#nav button');
+ if(b&&b.textContent==='DEVELOPMENT')setTimeout(()=>{
+   if(state){
+     const summary=document.getElementById('omsTrainingSummary');
+     const log=document.getElementById('omsTrainingLog');
+     if(summary)summary.textContent=state.trainingHistory?.length?'Training sessions completed: '+state.trainingHistory.length:'No training sessions yet.';
+     if(log)log.textContent=(state.trainingHistory||[]).slice(0,5).map(x=>'S'+x.season+' · Day '+x.day+' — '+x.type).join('  |  ')||'Your training choices will appear here.';
+   }
+ },0);
+});
+})();
+</script>
+</body></html>
