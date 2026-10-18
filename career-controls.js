@@ -1,147 +1,84 @@
-/* ONE MORE SEASON — Career Controls + Competition Center + Smooth UI
-   Keeps the single working calendar and adds an FC-style competition/standings hub.
-   Performance pass: cached standings, animation-frame rendering and softer UI transitions. */
+/* ONE MORE SEASON — Clean Career Hub + Competition Center v2 */
 (() => {
   'use strict';
-  if (window.__OMS_COMPETITIONS__) return;
-  window.__OMS_COMPETITIONS__ = true;
+  if(window.__OMS_CLEAN_HUB__)return;
+  window.__OMS_CLEAN_HUB__=true;
 
-  const esc = s => String(s ?? '').replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
-  const state = () => window.state || {};
-  const playerClub = () => state().club || state().team || document.querySelector('#club')?.value || 'Hillcrest Academy';
-  const playerName = () => state().name || document.querySelector('#name')?.value || 'Player';
-
-  const competitions = [
-    {name:'Premier League', country:'England', teams:['Arsenal','Chelsea','Liverpool','Manchester City','Manchester United','Tottenham','Aston Villa','Newcastle United','West Ham United','Brighton','Crystal Palace','Everton','Fulham','Wolverhampton','Brentford','Nottingham Forest','Bournemouth','Leicester City']},
-    {name:'La Liga', country:'Spain', teams:['Real Madrid','Barcelona','Atlético Madrid','Athletic Club','Real Sociedad','Villarreal','Real Betis','Sevilla','Valencia','Girona','Getafe','Celta Vigo','Osasuna','Mallorca','Rayo Vallecano','Alavés','Las Palmas','Espanyol']},
-    {name:'Bundesliga', country:'Germany', teams:['Bayern Munich','Borussia Dortmund','Bayer Leverkusen','RB Leipzig','VfB Stuttgart','Wolfsburg','Eintracht Frankfurt','SC Freiburg','Hoffenheim','Union Berlin','Mainz 05','Werder Bremen','Borussia Mönchengladbach','Augsburg','Heidenheim','St. Pauli','Holstein Kiel','RB Leipzig']},
-    {name:'Serie A', country:'Italy', teams:['Inter','AC Milan','Juventus','Napoli','Roma','Lazio','Atalanta','Fiorentina','Bologna','Torino','Genoa','Monza','Udinese','Parma','Cagliari','Como','Lecce','Empoli','Verona','Venezia']},
-    {name:'Ligue 1', country:'France', teams:['Paris Saint-Germain','Marseille','Lille','Monaco','Lyon','Nice','Lens','Rennes','Strasbourg','Nantes','Montpellier','Toulouse','Brest','Reims','Auxerre','Saint-Étienne','Le Havre','Angers']},
-    {name:'Eredivisie', country:'Netherlands', teams:['Ajax','PSV Eindhoven','Feyenoord','AZ Alkmaar','Twente','Utrecht','Groningen','Heerenveen','NEC Nijmegen','Sparta Rotterdam','Go Ahead Eagles','Fortuna Sittard','PEC Zwolle','Heracles','NAC Breda','Willem II']},
-    {name:'Primeira Liga', country:'Portugal', teams:['Benfica','Porto','Sporting CP','Braga','Vitória SC','Boavista','Famalicão','Gil Vicente','Rio Ave','Estoril','Arouca','Casa Pia','Moreirense','Nacional','Farense','Santa Clara']},
-    {name:'Süper Lig', country:'Türkiye', teams:['Galatasaray','Fenerbahçe','Beşiktaş','Trabzonspor','Başakşehir','Kasımpaşa','Antalyaspor','Samsunspor','Alanyaspor','Rizespor','Konyaspor','Kayserispor','Gaziantep','Sivasspor','Göztepe','Eyüpspor']},
-    {name:'Brasileirão', country:'Brazil', teams:['Flamengo','Palmeiras','Atlético Mineiro','Botafogo','Fluminense','São Paulo','Corinthians','Grêmio','Internacional','Cruzeiro','Bahia','Fortaleza','Vasco da Gama','Athletico Paranaense','Bragantino','Santos']},
-    {name:'MLS', country:'USA', teams:['Inter Miami','LAFC','Vancouver Whitecaps','LA Galaxy','Seattle Sounders','Atlanta United','New York City FC','New York Red Bulls','Columbus Crew','FC Cincinnati','Orlando City','Austin FC','Dallas','Houston Dynamo','Toronto FC','CF Montréal']},
-    {name:'Saudi Pro League', country:'Saudi Arabia', teams:['Al-Hilal','Al Nassr','Al-Ahli','Al-Ittihad','Al-Ettifaq','Al-Shabab','Al-Qadsiah','Al-Taawoun','Al-Fateh','Al-Raed','Damac','Al-Khaleej','Al-Wehda','Al-Okhdood','Al-Fayha','Al-Riyadh']},
-    {name:'Scottish Premiership', country:'Scotland', teams:['Celtic','Rangers','Aberdeen','Hearts','Hibernian','Motherwell','Dundee United','Dundee','St Mirren','Ross County','Kilmarnock','St Johnstone']},
-    {name:'Belgian Pro League', country:'Belgium', teams:['Club Brugge','Anderlecht','Genk','Gent','Antwerp','Standard Liège','Union SG','Mechelen','Charleroi','Cercle Brugge','Westerlo','OH Leuven','Sint-Truiden','Kortrijk','Dender','Beerschot']},
-    {name:'Croatian First Football League', country:'Croatia', teams:['Dinamo Zagreb','Hajduk Split','Rijeka','Osijek','Lokomotiva Zagreb','Gorica','Varaždin','Istra 1961','Šibenik','Slaven Belupo']},
-    {name:'Austrian Bundesliga', country:'Austria', teams:['Red Bull Salzburg','Sturm Graz','Rapid Wien','Austria Wien','LASK','Wolfsberger AC','Austria Klagenfurt','Hartberg','Altach','Blau-Weiß Linz','Grazer AK','WSG Tirol']}
+  const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
+  const get=()=>window.state||{};
+  const club=()=>get().club||get().team||document.querySelector('#club')?.value||'Hillcrest Academy';
+  const comps=[
+    ['Premier League','England',['Arsenal','Chelsea','Liverpool','Manchester City','Manchester United','Tottenham','Aston Villa','Newcastle United','West Ham United','Brighton','Crystal Palace','Everton','Fulham','Wolverhampton','Brentford','Nottingham Forest','Bournemouth','Leicester City']],
+    ['La Liga','Spain',['Real Madrid','Barcelona','Atlético Madrid','Athletic Club','Real Sociedad','Villarreal','Real Betis','Sevilla','Valencia','Girona','Getafe','Celta Vigo','Osasuna','Mallorca','Rayo Vallecano','Alavés','Las Palmas','Espanyol']],
+    ['Bundesliga','Germany',['Bayern Munich','Borussia Dortmund','Bayer Leverkusen','RB Leipzig','VfB Stuttgart','Wolfsburg','Eintracht Frankfurt','SC Freiburg','Hoffenheim','Union Berlin','Mainz 05','Werder Bremen','Borussia Mönchengladbach','Augsburg','Heidenheim','St. Pauli','Holstein Kiel']],
+    ['Serie A','Italy',['Inter','AC Milan','Juventus','Napoli','Roma','Lazio','Atalanta','Fiorentina','Bologna','Torino','Genoa','Monza','Udinese','Parma','Cagliari','Como','Lecce','Empoli','Verona','Venezia']],
+    ['Ligue 1','France',['Paris Saint-Germain','Marseille','Lille','Monaco','Lyon','Nice','Lens','Rennes','Strasbourg','Nantes','Montpellier','Toulouse','Brest','Reims','Auxerre','Saint-Étienne','Le Havre','Angers']],
+    ['Eredivisie','Netherlands',['Ajax','PSV Eindhoven','Feyenoord','AZ Alkmaar','Twente','Utrecht','Groningen','Heerenveen','NEC Nijmegen','Sparta Rotterdam','Go Ahead Eagles','Fortuna Sittard','PEC Zwolle','Heracles','NAC Breda','Willem II']],
+    ['Primeira Liga','Portugal',['Benfica','Porto','Sporting CP','Braga','Vitória SC','Boavista','Famalicão','Gil Vicente','Rio Ave','Estoril','Arouca','Casa Pia','Moreirense','Nacional','Farense','Santa Clara']],
+    ['Süper Lig','Türkiye',['Galatasaray','Fenerbahçe','Beşiktaş','Trabzonspor','Başakşehir','Kasımpaşa','Antalyaspor','Samsunspor','Alanyaspor','Rizespor','Konyaspor','Kayserispor','Gaziantep','Sivasspor','Göztepe','Eyüpspor']],
+    ['Brasileirão','Brazil',['Flamengo','Palmeiras','Atlético Mineiro','Botafogo','Fluminense','São Paulo','Corinthians','Grêmio','Internacional','Cruzeiro','Bahia','Fortaleza','Vasco da Gama','Athletico Paranaense','Bragantino','Santos']],
+    ['MLS','USA',['Inter Miami','LAFC','Vancouver Whitecaps','LA Galaxy','Seattle Sounders','Atlanta United','New York City FC','New York Red Bulls','Columbus Crew','FC Cincinnati','Orlando City','Austin FC','Dallas','Houston Dynamo','Toronto FC','CF Montréal']],
+    ['Saudi Pro League','Saudi Arabia',['Al-Hilal','Al Nassr','Al-Ahli','Al-Ittihad','Al-Ettifaq','Al-Shabab','Al-Qadsiah','Al-Taawoun','Al-Fateh','Al-Raed','Damac','Al-Khaleej','Al-Wehda','Al-Okhdood','Al-Fayha','Al-Riyadh']],
+    ['Scottish Premiership','Scotland',['Celtic','Rangers','Aberdeen','Hearts','Hibernian','Motherwell','Dundee United','Dundee','St Mirren','Ross County','Kilmarnock','St Johnstone']],
+    ['Belgian Pro League','Belgium',['Club Brugge','Anderlecht','Genk','Gent','Antwerp','Standard Liège','Union SG','Mechelen','Charleroi','Cercle Brugge','Westerlo','OH Leuven','Sint-Truiden','Kortrijk','Dender','Beerschot']],
+    ['Croatian First Football League','Croatia',['Dinamo Zagreb','Hajduk Split','Rijeka','Osijek','Lokomotiva Zagreb','Gorica','Varaždin','Istra 1961','Šibenik','Slaven Belupo']],
+    ['Austrian Bundesliga','Austria',['Red Bull Salzburg','Sturm Graz','Rapid Wien','Austria Wien','LASK','Wolfsberger AC','Austria Klagenfurt','Hartberg','Altach','Blau-Weiß Linz','Grazer AK','WSG Tirol']]
   ];
+  const cups=['UEFA Champions League','UEFA Europa League','UEFA Conference League','FA Cup','Copa del Rey','DFB-Pokal','Coppa Italia','Coupe de France','KNVB Cup','Taça de Portugal','Türkiye Cup','Copa do Brasil','U.S. Open Cup','King Cup'];
 
-  const cups = [
-    ['UEFA Champions League','Europe'],['UEFA Europa League','Europe'],['UEFA Conference League','Europe'],
-    ['FA Cup','England'],['Copa del Rey','Spain'],['DFB-Pokal','Germany'],['Coppa Italia','Italy'],
-    ['Coupe de France','France'],['KNVB Cup','Netherlands'],['Taça de Portugal','Portugal'],['Türkiye Cup','Türkiye'],
-    ['Copa do Brasil','Brazil'],['U.S. Open Cup','USA'],['King Cup','Saudi Arabia']
-  ];
+  function css(){if(document.getElementById('omsCleanStyles'))return;const s=document.createElement('style');s.id='omsCleanStyles';s.textContent=`
+    .oms-simbar{margin:18px 0 14px;padding:16px 18px;border:1px solid #245d7f;border-radius:16px;background:linear-gradient(135deg,#081d2e,#06131f);box-shadow:0 12px 35px #0005}
+    .oms-simhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.oms-simtitle{font-size:18px;font-weight:950}.oms-simday{font-size:24px;font-weight:950;color:#35c8ff}.oms-simsub{color:#8faec7;font-size:11px;margin-top:4px}
+    .oms-simcontrols{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.oms-simbtn{border:1px solid #285873;background:#0b2437;color:#dcecf7;border-radius:8px;padding:9px 12px;font-size:10px;font-weight:950;cursor:pointer}.oms-simbtn:hover{border-color:#35c8ff;transform:translateY(-1px)}.oms-simbtn.primary{background:#18d79b;color:#03140f;border-color:#18d79b}.oms-custom{display:flex;gap:6px;margin-left:auto}.oms-custom input{width:75px;padding:9px;border-radius:8px;border:1px solid #285873;background:#071622;color:#fff;font-size:11px}
+    .oms-simnote{margin-top:10px;padding:8px 10px;border-radius:8px;background:#06131d;color:#8faec7;font-size:10px}.oms-simnote b{color:#dff5ff}
+    .oms-profile{margin-top:18px}.oms-profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:13px}.oms-profile-stat{padding:13px;border:1px solid #1e4d69;border-radius:12px;background:#081b2b}.oms-profile-stat span{font-size:9px;color:#7599b3;letter-spacing:1px;font-weight:900}.oms-profile-stat b{display:block;font-size:20px;margin-top:5px}
+    .oms-comp-view{margin-top:0}.oms-comp-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}.oms-kicker{font-size:10px;letter-spacing:1.7px;color:#79d0ff;font-weight:950}.oms-comp-title{font-size:26px;font-weight:950;margin-top:4px}.oms-select{min-width:230px;padding:10px 12px;border-radius:9px;border:1px solid #28638c;background:#071a2a;color:#fff;font-weight:800}.oms-tabs{display:flex;gap:6px;overflow:auto;margin-top:14px}.oms-tab{border:1px solid #255a7d;background:#0a2237;color:#9db9cd;border-radius:8px;padding:8px 11px;font-size:10px;font-weight:900;white-space:nowrap}.oms-tab.active{border-color:#18d79b;background:#07352f;color:#fff}.oms-comp-grid{display:grid;grid-template-columns:1.5fr .5fr;gap:13px;margin-top:13px}.oms-comp-box{border:1px solid #184b6e;border-radius:15px;background:linear-gradient(145deg,#091e30f7,#05121ef7);padding:14px;overflow:auto}.oms-table{width:100%;border-collapse:collapse;font-size:11px}.oms-table th{padding:8px 6px;color:#7599b3;font-size:9px;text-align:left;border-bottom:1px solid #1b455f}.oms-table td{padding:9px 6px;border-bottom:1px solid #12354b}.oms-table tr.user td{background:#07352f;color:#fff}.oms-table .club{font-weight:850}.oms-table .pts{font-weight:950}.oms-side{display:grid;gap:8px}.oms-side-item{padding:11px;border:1px solid #194963;border-radius:10px;background:#071a2a}.oms-side-item b{font-size:11px}.oms-side-item small{display:block;color:#8faec7;margin-top:4px;line-height:1.4}.oms-cups{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.oms-cup{padding:11px;border:1px solid #194963;border-radius:10px;background:#071a2a}.oms-cup b{font-size:11px}
+    @media(max-width:900px){.oms-profile-grid{grid-template-columns:1fr 1fr}.oms-comp-grid{grid-template-columns:1fr}.oms-custom{margin-left:0}}@media(max-width:600px){.oms-profile-grid{grid-template-columns:1fr}.oms-simcontrols{display:grid;grid-template-columns:1fr 1fr}.oms-custom{grid-column:1/-1}.oms-cups{grid-template-columns:1fr}}
+  `;document.head.appendChild(s)}
 
-  function styles(){
-    if(document.getElementById('omsCompStyles')) return;
-    const s=document.createElement('style'); s.id='omsCompStyles'; s.textContent=`
-      #omsCompetitionCenter{margin-top:18px}
-      .omsCompHead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
-      .omsCompKicker{font-size:10px;letter-spacing:1.8px;font-weight:950;color:#79d0ff}
-      .omsCompTitle{font-size:25px;font-weight:950;margin-top:5px}
-      .omsCompSelect{min-width:240px;padding:11px 13px;border-radius:10px;border:1px solid #28638c;background:#071a2a;color:#fff;font-weight:800}
-      .omsCompTabs{display:flex;gap:7px;overflow:auto;margin-top:16px;padding-bottom:2px}
-      .omsCompTab{border:1px solid #255a7d;background:#0a2237;color:#9db9cd;border-radius:9px;padding:9px 12px;font-size:10px;font-weight:900;white-space:nowrap}
-      .omsCompTab.active{color:#fff;border-color:#18d79b;background:#07352f;box-shadow:0 0 18px #18d79b18}
-      .omsCompGrid{display:grid;grid-template-columns:1.45fr .55fr;gap:14px;margin-top:14px}
-      .omsCompPanel{border:1px solid #184b6e;border-radius:16px;background:linear-gradient(145deg,#091e30f7,#05121ef7);padding:16px;overflow:hidden}
-      .omsTable{width:100%;border-collapse:collapse;font-size:11px}
-      .omsTable th{text-align:left;color:#7599b3;font-size:9px;letter-spacing:1px;padding:9px 7px;border-bottom:1px solid #1b455f}
-      .omsTable td{padding:10px 7px;border-bottom:1px solid #12354b;color:#d8e7f2}
-      .omsTable tr:last-child td{border-bottom:0}.omsTable .pos{width:30px;color:#6f9ab6}.omsTable .pts{font-weight:950;color:#fff}
-      .omsTable tr.omsUser td{background:#07352f;color:#fff}.omsClub{font-weight:850}.omsForm{font-size:9px;letter-spacing:2px;color:#79d0ff}
-      .omsSideList{display:grid;gap:8px;margin-top:12px}.omsSideItem{padding:11px;border:1px solid #194963;border-radius:10px;background:#071a2a}.omsSideItem b{font-size:11px}.omsSideItem small{display:block;color:#8faec7;margin-top:4px;line-height:1.35}
-      .omsCupGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.omsCup{padding:12px;border:1px solid #194963;border-radius:11px;background:#071a2a}.omsCup b{display:block;font-size:11px}.omsCup span{color:#8faec7;font-size:10px}
-      #omsCompetitionCenter,.panel,.card,.event,.match-report{transform:translateZ(0);backface-visibility:hidden}
-      .panel,.card,.event,.omsCompPanel,.omsSideItem,.omsCup{transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease}
-      .card:hover,.event:hover,.omsSideItem:hover,.omsCup:hover{transform:translateY(-2px)}
-      button{transition:transform .12s ease,filter .12s ease,background-color .12s ease}button:active{transform:scale(.98)}
-      .action,.start{will-change:transform}.bar i{transition:width .45s cubic-bezier(.2,.8,.2,1)}
-      @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-      @media(max-width:850px){.omsCompGrid{grid-template-columns:1fr}.omsCompSelect{min-width:200px}.omsCupGrid{grid-template-columns:1fr}}
-    `; document.head.appendChild(s);
+  function simBar(){
+    if(document.getElementById('oms-simbar'))return;
+    const home=document.getElementById('home');if(!home)return;
+    const bar=document.createElement('section');bar.id='oms-simbar';bar.className='oms-simbar';
+    bar.innerHTML=`<div class="oms-simhead"><div><div class="oms-kicker">CAREER SIMULATION</div><div class="oms-simtitle">SIMULATE DAYS</div><div class="oms-simsub">Choose how far to advance. The calendar moves with your career.</div></div><div class="oms-simday" id="omsCleanDay">DAY 1</div></div><div class="oms-simcontrols"><button class="oms-simbtn primary" onclick="OMS_SIM_DAYS(1)">+1 DAY</button><button class="oms-simbtn" onclick="OMS_SIM_DAYS(3)">+3 DAYS</button><button class="oms-simbtn" onclick="OMS_SIM_DAYS(7)">+7 DAYS</button><button class="oms-simbtn" onclick="OMS_SIM_DAYS(14)">+14 DAYS</button><button class="oms-simbtn" onclick="OMS_SIM_DAYS(30)">+30 DAYS</button><div class="oms-custom"><input id="omsCleanCustom" type="number" min="1" max="365" value="5"><button class="oms-simbtn" onclick="OMS_SIM_CUSTOM_CLEAN()">SIMULATE</button></div></div><div class="oms-simnote" id="omsCleanNote">Ready · next event: <b>—</b></div>`;
+    const calendarPanel=[...home.querySelectorAll('.panel')].find(p=>p.querySelector('h2')?.textContent.trim().toUpperCase().includes('SEASON CALENDAR'));
+    if(calendarPanel)calendarPanel.parentNode.insertBefore(bar,calendarPanel);else home.appendChild(bar);
   }
 
-  const standingsCache = new Map();
-  function makeRows(comp){
-    const day=Math.max(1,Number(state().day||document.querySelector('#day')?.textContent||1));
-    const key=comp.name+'|'+day;
-    if(standingsCache.has(key)) return standingsCache.get(key);
-    const seed=comp.name.length*17+day*7;
-    const rows=comp.teams.map((team,i)=>{
-      const form=((seed+i*13)%7);
-      const played=Math.max(1,Math.floor(day/3)+((i+seed)%3));
-      const wins=Math.max(0,Math.floor(played*.48)+((i+seed)%2));
-      const draws=Math.max(0,Math.floor(played*.22)+((i+2)%2));
-      const losses=Math.max(0,played-wins-draws);
-      const gf=Math.max(1,wins*2+draws+((i+seed)%5));
-      const ga=Math.max(0,losses*2+((i+3)%4));
-      return {team,played,wins,draws,losses,gf,ga,gd:gf-ga,pts:wins*3+draws,form:['W','W','D','W','L','W','D'][form],i};
-    }).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf).map((r,i)=>({...r,pos:i+1}));
-    standingsCache.set(key,rows);
-    if(standingsCache.size>60) standingsCache.delete(standingsCache.keys().next().value);
-    return rows;
+  function movePlayerValue(){
+    const home=document.getElementById('home');if(!home)return;
+    const status=[...home.querySelectorAll('.panel')].find(p=>p.querySelector('h2')?.textContent.trim().toUpperCase()==='PLAYER STATUS');
+    if(!status||document.getElementById('omsProfileView'))return;
+    const app=document.getElementById('app'),main=app?.querySelector('main');if(!main)return;
+    const view=document.createElement('section');view.id='omsProfileView';view.className='view';view.innerHTML='<div class="oms-profile"></div>';main.appendChild(view);view.querySelector('.oms-profile').appendChild(status);status.classList.add('oms-profile');
+    const nav=document.getElementById('nav');if(nav&&!document.getElementById('omsProfileNav')){const b=document.createElement('button');b.id='omsProfileNav';b.textContent='PLAYER';b.onclick=()=>showCleanView('omsProfileView','omsProfileNav');nav.appendChild(b)}
   }
 
-  function render(){
-    const app=document.querySelector('#app'); if(!app || app.classList.contains('hidden')) return;
-    styles();
-    const home=document.querySelector('#home'); if(!home) return;
-    let nav=document.querySelector('#nav');
-    if(nav && !document.getElementById('omsCompetitionNav')){
-      const b=document.createElement('button'); b.id='omsCompetitionNav'; b.textContent='COMPETITIONS';
-      b.onclick=()=>showCompetition(); nav.appendChild(b);
-    }
-    let view=document.getElementById('omsCompetitionView');
-    if(!view){
-      view=document.createElement('section'); view.id='omsCompetitionView'; view.className='view';
-      view.innerHTML=`<div id="omsCompetitionCenter"></div>`;
-      app.querySelector('main').appendChild(view);
-    }
-    const center=view.querySelector('#omsCompetitionCenter');
-    const selected=view.dataset.competition||competitions[0].name;
-    const comp=competitions.find(x=>x.name===selected)||competitions[0];
-    const rows=makeRows(comp);
-    const user=playerClub();
-    center.innerHTML=`<section class="omsCompPanel">
-      <div class="omsCompHead"><div><div class="omsCompKicker">COMPETITION HUB · SEASON 1</div><div class="omsCompTitle">${esc(comp.name)}</div><div class="muted">${esc(comp.country)} · live simulated standings</div></div>
-      <select class="omsCompSelect" id="omsCompetitionSelect">${competitions.map(c=>`<option ${c.name===comp.name?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
-      <div class="omsCompTabs"><button class="omsCompTab active">TABLE</button><button class="omsCompTab">FIXTURES</button><button class="omsCompTab">RESULTS</button><button class="omsCompTab">TOP SCORERS</button><button class="omsCompTab">NEWS</button></div>
-      <div class="omsCompGrid"><div class="omsCompPanel" style="padding:8px"><table class="omsTable"><thead><tr><th>#</th><th>CLUB</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.team.toLowerCase()===String(user).toLowerCase()?'omsUser':''}"><td class="pos">${r.pos}</td><td class="omsClub">${esc(r.team)}</td><td>${r.played}</td><td>${r.wins}</td><td>${r.draws}</td><td>${r.losses}</td><td>${r.gd>0?'+':''}${r.gd}</td><td class="pts">${r.pts}</td><td class="omsForm">${r.form}</td></tr>`).join('')}</tbody></table></div>
-      <aside class="omsCompPanel"><div class="omsCompKicker">COMPETITION STATUS</div><div class="omsSideList"><div class="omsSideItem"><b>🏆 Title race</b><small>${esc(rows[0].team)} lead the simulated table.</small></div><div class="omsSideItem"><b>⭐ Your club</b><small>${esc(user)} · highlighted when present in this competition.</small></div><div class="omsSideItem"><b>📅 Matchweek</b><small>Day ${Math.max(1,Number(state().day||1))} · standings update as you simulate.</small></div><div class="omsSideItem"><b>🔥 Form</b><small>Last-five form is shown in the table.</small></div></div></aside></div>
-      <div class="omsCompKicker" style="margin-top:18px">CUPS & CONTINENTAL COMPETITIONS</div><div class="omsCupGrid">${cups.map(c=>`<div class="omsCup"><b>${esc(c[0])}</b><span>${esc(c[1])} · ${c[0].includes('Champions')?'League phase + knockout': 'Knockout competition'}</span></div>`).join('')}</div>
-    </section>`;
-    const select=view.querySelector('#omsCompetitionSelect');
-    if(select) select.onchange=e=>{view.dataset.competition=e.target.value;scheduleRender()};
+  function cleanHome(){
+    const home=document.getElementById('home');if(!home)return;
+    // Remove the duplicate Player Calendar panel; the Season Calendar remains the single calendar.
+    [...home.querySelectorAll('.panel')].forEach(p=>{const h=p.querySelector('h2');if(h&&h.textContent.trim().toUpperCase()==='PLAYER CALENDAR')p.remove()});
+    simBar();movePlayerValue();
   }
 
-  let renderFrame=0;
-  function scheduleRender(){
-    if(renderFrame) return;
-    renderFrame=requestAnimationFrame(()=>{renderFrame=0;render()});
+  function renderSim(){
+    const s=get(),day=Number(s.day||1);const d=document.getElementById('omsCleanDay');if(d)d.textContent='DAY '+day;
+    const a=document.getElementById('omsCleanNote');if(a){let next='Daily activity';if(day%7===1||day%7===5)next='⚽ Matchday';a.innerHTML=`Ready · <b>DAY ${day}</b> · ${next} · Fitness ${Math.round(s.fitness??0)}% · Morale ${Math.round(s.morale??0)}%`}
+  }
+  window.OMS_SIM_CUSTOM_CLEAN=()=>{const n=Math.max(1,Math.min(365,parseInt(document.getElementById('omsCleanCustom')?.value||'1',10)));if(typeof window.OMS_SIM_DAYS==='function')window.OMS_SIM_DAYS(n);else if(typeof window.advance==='function')window.advance(n)};
+
+  function renderCompetitions(){
+    const app=document.getElementById('app');if(!app||app.classList.contains('hidden'))return;css();
+    const nav=document.getElementById('nav');if(nav&&!document.getElementById('omsCompNav')){const b=document.createElement('button');b.id='omsCompNav';b.textContent='COMPETITIONS';b.onclick=()=>showCleanView('omsCompetitionView','omsCompNav');nav.appendChild(b)}
+    let view=document.getElementById('omsCompetitionView');if(!view){view=document.createElement('section');view.id='omsCompetitionView';view.className='view';view.innerHTML='<div class="oms-comp-view"></div>';app.querySelector('main').appendChild(view)}
+    const center=view.firstElementChild;const idx=Math.min(comps.length-1,Math.max(0,Number(view.dataset.idx||0)));const c=comps[idx];const day=Math.max(1,Number(get().day||1));
+    const rows=c[2].map((team,i)=>{const played=Math.max(1,Math.floor(day/3)+(i%3));const w=Math.max(0,Math.floor(played*.5)-((i+day)%4===0?1:0));const dr=Math.max(0,Math.floor(played*.2)+((i+day)%5===0?1:0));const l=Math.max(0,played-w-dr);const gd=w*2+dr-(l*2);return{team,p:played,w,d:dr,l,gd,pts:w*3+dr,pos:i}}).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||a.team.localeCompare(b.team));
+    center.innerHTML=`<section class="oms-comp-box"><div class="oms-comp-head"><div><div class="oms-kicker">COMPETITIONS</div><div class="oms-comp-title">${esc(c[0])}</div><div class="muted">${esc(c[1])} · simulated standings</div></div><select id="omsCompSelect" class="oms-select">${comps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${esc(x[0])}</option>`).join('')}</select></div><div class="oms-tabs"><button class="oms-tab active">TABLE</button><button class="oms-tab">FIXTURES</button><button class="oms-tab">RESULTS</button><button class="oms-tab">TOP SCORERS</button><button class="oms-tab">NEWS</button></div><div class="oms-comp-grid"><div class="oms-comp-box"><table class="oms-table"><thead><tr><th>#</th><th>CLUB</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${r.team.toLowerCase()===String(club()).toLowerCase()?'user':''}"><td>${i+1}</td><td class="club">${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td><td class="pts">${r.pts}</td></tr>`).join('')}</tbody></table></div><aside class="oms-comp-box"><div class="oms-kicker">COMPETITION STATUS</div><div class="oms-side"><div class="oms-side-item"><b>🏆 Leader</b><small>${esc(rows[0]?.team||'—')}</small></div><div class="oms-side-item"><b>⭐ Your club</b><small>${esc(club())}</small></div><div class="oms-side-item"><b>📅 Current day</b><small>Day ${day}</small></div><div class="oms-side-item"><b>📈 Table</b><small>Updates as the career advances.</small></div></div></aside></div><div class="oms-kicker" style="margin-top:16px">CUPS & CONTINENTAL</div><div class="oms-cups">${cups.map(x=>`<div class="oms-cup"><b>🏆 ${esc(x)}</b></div>`).join('')}</div></section>`;
+    view.querySelector('#omsCompSelect').onchange=e=>{view.dataset.idx=e.target.value;renderCompetitions()};
   }
 
-  function showCompetition(){
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('omsCompetitionView')?.classList.add('active');
-    document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
-    document.getElementById('omsCompetitionNav')?.classList.add('active');
-    scheduleRender();
-  }
-  window.OMSCompetitions={render,scheduleRender,showCompetition,competitions};
-
-  function boot(){
-    // Remove the redundant old calendar panel only; the existing Season Calendar remains.
-    document.querySelectorAll('#home .panel').forEach(panel=>{
-      const h=panel.querySelector('h2');
-      if(h && h.textContent.trim().toUpperCase()==='PLAYER CALENDAR') panel.remove();
-    });
-    styles();
-    scheduleRender();
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
+  function showCleanView(id,navId){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id)?.classList.add('active');document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));document.getElementById(navId)?.classList.add('active');}
+  window.OMSCleanHub={render:()=>{cleanHome();renderSim();renderCompetitions()}};
+  function boot(){cleanHome();renderSim();renderCompetitions()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
