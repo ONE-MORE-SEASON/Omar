@@ -1,6 +1,6 @@
-/* ONE MORE SEASON — Career Controls + Competition Center
+/* ONE MORE SEASON — Career Controls + Competition Center + Smooth UI
    Keeps the single working calendar and adds an FC-style competition/standings hub.
-   Dependency-free; safe to run after the main page renders. */
+   Performance pass: cached standings, animation-frame rendering and softer UI transitions. */
 (() => {
   'use strict';
   if (window.__OMS_COMPETITIONS__) return;
@@ -56,14 +56,23 @@
       .omsTable tr.omsUser td{background:#07352f;color:#fff}.omsClub{font-weight:850}.omsForm{font-size:9px;letter-spacing:2px;color:#79d0ff}
       .omsSideList{display:grid;gap:8px;margin-top:12px}.omsSideItem{padding:11px;border:1px solid #194963;border-radius:10px;background:#071a2a}.omsSideItem b{font-size:11px}.omsSideItem small{display:block;color:#8faec7;margin-top:4px;line-height:1.35}
       .omsCupGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.omsCup{padding:12px;border:1px solid #194963;border-radius:11px;background:#071a2a}.omsCup b{display:block;font-size:11px}.omsCup span{color:#8faec7;font-size:10px}
+      #omsCompetitionCenter,.panel,.card,.event,.match-report{transform:translateZ(0);backface-visibility:hidden}
+      .panel,.card,.event,.omsCompPanel,.omsSideItem,.omsCup{transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease}
+      .card:hover,.event:hover,.omsSideItem:hover,.omsCup:hover{transform:translateY(-2px)}
+      button{transition:transform .12s ease,filter .12s ease,background-color .12s ease}button:active{transform:scale(.98)}
+      .action,.start{will-change:transform}.bar i{transition:width .45s cubic-bezier(.2,.8,.2,1)}
+      @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
       @media(max-width:850px){.omsCompGrid{grid-template-columns:1fr}.omsCompSelect{min-width:200px}.omsCupGrid{grid-template-columns:1fr}}
     `; document.head.appendChild(s);
   }
 
+  const standingsCache = new Map();
   function makeRows(comp){
     const day=Math.max(1,Number(state().day||document.querySelector('#day')?.textContent||1));
+    const key=comp.name+'|'+day;
+    if(standingsCache.has(key)) return standingsCache.get(key);
     const seed=comp.name.length*17+day*7;
-    return comp.teams.map((team,i)=>{
+    const rows=comp.teams.map((team,i)=>{
       const form=((seed+i*13)%7);
       const played=Math.max(1,Math.floor(day/3)+((i+seed)%3));
       const wins=Math.max(0,Math.floor(played*.48)+((i+seed)%2));
@@ -73,6 +82,9 @@
       const ga=Math.max(0,losses*2+((i+3)%4));
       return {team,played,wins,draws,losses,gf,ga,gd:gf-ga,pts:wins*3+draws,form:['W','W','D','W','L','W','D'][form],i};
     }).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf).map((r,i)=>({...r,pos:i+1}));
+    standingsCache.set(key,rows);
+    if(standingsCache.size>60) standingsCache.delete(standingsCache.keys().next().value);
+    return rows;
   }
 
   function render(){
@@ -103,7 +115,14 @@
       <aside class="omsCompPanel"><div class="omsCompKicker">COMPETITION STATUS</div><div class="omsSideList"><div class="omsSideItem"><b>🏆 Title race</b><small>${esc(rows[0].team)} lead the simulated table.</small></div><div class="omsSideItem"><b>⭐ Your club</b><small>${esc(user)} · highlighted when present in this competition.</small></div><div class="omsSideItem"><b>📅 Matchweek</b><small>Day ${Math.max(1,Number(state().day||1))} · standings update as you simulate.</small></div><div class="omsSideItem"><b>🔥 Form</b><small>Last-five form is shown in the table.</small></div></div></aside></div>
       <div class="omsCompKicker" style="margin-top:18px">CUPS & CONTINENTAL COMPETITIONS</div><div class="omsCupGrid">${cups.map(c=>`<div class="omsCup"><b>${esc(c[0])}</b><span>${esc(c[1])} · ${c[0].includes('Champions')?'League phase + knockout': 'Knockout competition'}</span></div>`).join('')}</div>
     </section>`;
-    view.querySelector('#omsCompetitionSelect').onchange=e=>{view.dataset.competition=e.target.value;render()};
+    const select=view.querySelector('#omsCompetitionSelect');
+    if(select) select.onchange=e=>{view.dataset.competition=e.target.value;scheduleRender()};
+  }
+
+  let renderFrame=0;
+  function scheduleRender(){
+    if(renderFrame) return;
+    renderFrame=requestAnimationFrame(()=>{renderFrame=0;render()});
   }
 
   function showCompetition(){
@@ -111,9 +130,9 @@
     document.getElementById('omsCompetitionView')?.classList.add('active');
     document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
     document.getElementById('omsCompetitionNav')?.classList.add('active');
-    render();
+    scheduleRender();
   }
-  window.OMSCompetitions={render,showCompetition,competitions};
+  window.OMSCompetitions={render,scheduleRender,showCompetition,competitions};
 
   function boot(){
     // Remove the redundant old calendar panel only; the existing Season Calendar remains.
@@ -121,8 +140,8 @@
       const h=panel.querySelector('h2');
       if(h && h.textContent.trim().toUpperCase()==='PLAYER CALENDAR') panel.remove();
     });
-    render();
-    setTimeout(render,150); setTimeout(render,600);
+    styles();
+    scheduleRender();
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 })();
