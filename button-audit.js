@@ -21,7 +21,6 @@
     if (typeof window.advance !== 'function') { tell('Calendar is unavailable right now.'); return false; }
     window.advance(count);
     updateDaySimulator();
-    tell('Calendar advanced by ' + count + (count === 1 ? ' day.' : ' days.'));
     return true;
   };
 
