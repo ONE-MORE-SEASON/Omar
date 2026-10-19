@@ -28,6 +28,8 @@
   function updateDaySimulator() {
     const s = stateNow();
     if (!s) return;
+    window.state = s;
+    window.OMS_CURRENT_STATE = s;
     const day = Math.max(1, Number(s.day) || 1);
     const dayEl = document.getElementById('omsCleanDay');
     if (dayEl) dayEl.textContent = 'DAY ' + day;
@@ -176,7 +178,8 @@
       const s = stateNow() || {};
       const today = Math.max(1, Number(s.day) || 1);
       const league = view.querySelector('.oms-comp-title')?.textContent || 'League';
-      const tableTeams = [...view.querySelectorAll('.oms-table tbody tr')].map(row => row.querySelector('td:nth-child(2)')?.textContent?.trim()).filter(Boolean);
+      if (!view._omsTeams || !view._omsTeams.length) view._omsTeams = [...view.querySelectorAll('.oms-table tbody tr')].map(row => row.querySelector('td:nth-child(2)')?.textContent?.trim()).filter(Boolean);
+      const tableTeams = view._omsTeams;
       const userClub = String(s.club || document.querySelector('#club')?.value || 'Your club');
       const teams = tableTeams.length ? tableTeams : [userClub,'Opponent FC','United'];
       if (!teams.some(team => team.toLowerCase() === userClub.toLowerCase())) teams.unshift(userClub);
@@ -196,10 +199,12 @@
         const results = Array.from({length:6},(_,i) => {
           const matchDay = Math.max(1,today - i * 7);
           const opponent = otherTeams[(today + i * 2 + 1) % Math.max(1,otherTeams.length)] || 'League opponent';
-          const home = (matchDay + i) % 2 === 0;
-          const a = (matchDay * 3 + i) % 4, b = (matchDay + i * 2) % 3;
-          const gf = home ? a : b, ga = home ? b : a;
-          return '<tr><td>' + matchDay + '</td><td class="club">' + escapeHTML(home ? userClub : opponent) + '</td><td><b>' + gf + '–' + ga + '</b></td><td class="club">' + escapeHTML(home ? opponent : userClub) + '</td><td>' + (gf > ga ? 'W' : gf === ga ? 'D' : 'L') + '</td></tr>';
+          const playerHome = (matchDay + i) % 2 === 0;
+          const userGoals = playerHome ? (matchDay * 3 + i) % 4 : (matchDay + i * 2) % 3;
+          const opponentGoals = playerHome ? (matchDay + i * 2) % 3 : (matchDay * 3 + i) % 4;
+          const homeName = playerHome ? userClub : opponent, awayName = playerHome ? opponent : userClub;
+          const homeGoals = playerHome ? userGoals : opponentGoals, awayGoals = playerHome ? opponentGoals : userGoals;
+          return '<tr><td>' + matchDay + '</td><td class="club">' + escapeHTML(homeName) + '</td><td><b>' + homeGoals + '–' + awayGoals + '</b></td><td class="club">' + escapeHTML(awayName) + '</td><td>' + (userGoals > opponentGoals ? 'W' : userGoals === opponentGoals ? 'D' : 'L') + '</td></tr>';
         }).join('');
         content.innerHTML = '<div class="oms-kicker">RECENT RESULTS · SIMULATED</div><h3 style="margin:8px 0 4px">Recent match list</h3><p class="muted">This generated list is illustrative; your actual player match reports remain in Match Centre.</p><table class="oms-table"><thead><tr><th>DAY</th><th>HOME</th><th>SCORE</th><th>AWAY</th><th>OUTCOME</th></tr></thead><tbody>' + results + '</tbody></table>';
       } else if (mode === 'TOP SCORERS') {
@@ -230,8 +235,15 @@
   }
 
   // Refresh simulation info without rebuilding the competition page or resetting its selected tab.
+  function syncLegacyState() {
+    const s = stateNow();
+    if (s) { window.state = s; window.OMS_CURRENT_STATE = s; }
+  }
+
   function refreshVisibleStatus() {
+    syncLegacyState();
     updateDaySimulator();
+    if (typeof window.OMS_MEGA3_RENDER === 'function') window.OMS_MEGA3_RENDER();
     const s = stateNow();
     if (s && document.getElementById('omsCompetitionView')?.classList.contains('active')) {
       const selected = document.getElementById('omsCompetitionView')?.dataset.mode;
@@ -251,9 +263,11 @@
     if (typeof oldBegin === 'function') {
       window.beginCareer = function() {
         const result = oldBegin.apply(this, arguments);
+        syncLegacyState();
         setTimeout(() => {
           if (!stateNow()) return;
           if (window.OMSCleanHub && typeof window.OMSCleanHub.render === 'function') window.OMSCleanHub.render();
+          if (typeof window.OMS_MEGA3_RENDER === 'function') window.OMS_MEGA3_RENDER();
           updateDaySimulator();
         }, 40);
         return result;
@@ -264,7 +278,9 @@
     const oldRender = window.render;
     if (typeof oldRender === 'function') {
       window.render = function() {
+        syncLegacyState();
         const result = oldRender.apply(this, arguments);
+        syncLegacyState();
         setTimeout(refreshVisibleStatus, 0);
         return result;
       };
@@ -272,7 +288,7 @@
 
     // Helpful, non-destructive labels for accessible controls.
     document.querySelectorAll('button').forEach(button => {
-      button.type = button.type || 'button';
+      if (!button.hasAttribute('type')) button.type = 'button';
     });
     updateDaySimulator();
   }
