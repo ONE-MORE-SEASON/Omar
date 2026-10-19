@@ -1,0 +1,62 @@
+name: Apply Player Career realism
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  realism:
+    if: ${{ !contains(github.event.head_commit.message, 'Apply stable Player Career realism') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace realism pack
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('realism.js')
+          p.write_text(r'''/* ONE MORE SEASON — Stable Player Career Realism */
+(() => {
+  'use strict';
+  if (window.__OMS_REALISM_STABLE__) return;
+  window.__OMS_REALISM_STABLE__ = true;
+  const KEY='omsCareerStable3';
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const num=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
+  const stateOf=()=>typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():null;
+  const save=()=>{try{window.save?.()}catch(e){}};
+  const note=(t)=>{try{window.toast?.(t)}catch(e){}};
+  const managers=[['Martin Sjöberg','Balanced'],['David Carter','Development'],['Marco Bianchi','Tactical']];
+  const targets=[['Brighton','Premier League',76],['Real Sociedad','La Liga',74],['Villarreal','La Liga',75],['Feyenoord','Eredivisie',75],['Lille','Ligue 1',74],['Bologna','Serie A',73],['Sporting CP','Primeira Liga',77],['Borussia Dortmund','Bundesliga',82],['RB Leipzig','Bundesliga',80],['Benfica','Primeira Liga',79],['Marseille','Ligue 1',76],['Aston Villa','Premier League',78]];
+  function ensure(s){
+    if(!s)return;
+    s.apps=num(s.apps);s.goals=num(s.goals);s.assists=num(s.assists);s.motm=num(s.motm);s.ratingTotal=num(s.ratingTotal);
+    s.minutes=num(s.minutes);s.starts=num(s.starts);s.subApps=num(s.subApps);s.benchApps=num(s.benchApps);
+    s.managerTrust=clamp(num(s.managerTrust,60),0,100);s.reputation=clamp(num(s.reputation,20),0,100);s.wage=num(s.wage,500);s.contractYears=num(s.contractYears,3);s.injuredDays=num(s.injuredDays);s.transferOffers=Array.isArray(s.transferOffers)?s.transferOffers:[];s.nationalCaps=num(s.nationalCaps);s.nationalGoals=num(s.nationalGoals);s.careerEvents=Array.isArray(s.careerEvents)?s.careerEvents:[];s.seasonArchive=Array.isArray(s.seasonArchive)?s.seasonArchive:[];
+    if(!s.manager){const m=managers[Math.abs(num(s.season,1)-1)%managers.length];s.manager=m[0];s.managerStyle=m[1]}
+  }
+  function event(title,detail){const s=stateOf();if(!s)return;ensure(s);s.careerEvents.push({title,detail,day:s.day||1,season:s.season||1});s.careerEvents=s.careerEvents.slice(-40);save()}
+  function role(s){const r=s.startingRoute,o=num(s.ovr,67),t=num(s.managerTrust,60),q=num(s.sharp,85);if(s.injuredDays>0)return'INJURED';if(r==='starter'&&o>=64&&t>=55)return'STARTER';if(r==='bench')return'BENCH';if(o>=76&&t>=72&&q>=75)return'STARTER';if(o>=69&&t>=58)return'ROTATION';return'BENCH'}
+  function addMatchRealism(){const s=stateOf();if(!s)return;ensure(s);const m=s.matchHistory?.[0];if(!m)return;const rating=num(m.rating,6.5),r=role(s);if(r==='INJURED'){note('You are unavailable through injury');return}let start=r==='STARTER'||(r==='ROTATION'&&Math.random()<.55);let mins=start?62+Math.floor(Math.random()*29):12+Math.floor(Math.random()*31);if(s.fitness<55)mins=Math.max(8,mins-18);if(s.sharp<55)mins=Math.max(8,mins-12);if(s.managerTrust<45)mins=Math.max(0,mins-15);s.role=start?'STARTER':'SUBSTITUTE';s.minutes+=mins;if(mins>0){s.apps++;start?s.starts++:s.subApps++}else s.benchApps++;s.goals+=num(m.goals);s.assists+=num(m.assists);s.ratingTotal+=rating;if(m.motm)s.motm++;s.managerTrust=clamp(s.managerTrust+(rating>=7.5?2:rating<5.8?-2:0)+(start?1:0),0,100);s.reputation=clamp(s.reputation+(rating>=8?2:rating>=7?1:0)+(m.motm?2:0),0,100);s.morale=clamp(num(s.morale,78)+(m.outcome==='W'?2:m.outcome==='L'?-2:0),0,100);if(rating>=8.2&&s.ovr<99&&Math.random()<.12){s.ovr++;event('Development','Strong performances raised OVR to '+s.ovr)}if(mins>=75&&Math.random()<.035){s.injuredDays=2+Math.floor(Math.random()*6);event('Injury','A knock rules you out for '+s.injuredDays+' days');note('Injury: '+s.injuredDays+' days')}if(s.fitness<48&&Math.random()<.05){s.injuredDays=Math.max(s.injuredDays,3+Math.floor(Math.random()*6));event('Fatigue','The medical team recommends recovery');}offer(s);national(s);save()}
+  function offer(s){if(s.reputation<38||s.transferOffers.length>=3||Math.random()>.09)return;const a=targets.filter(x=>x[0]!==s.club&&!s.transferOffers.some(o=>o.club===x[0]));if(!a.length)return;const t=a[Math.floor(Math.random()*a.length)];if(s.ovr<t[2]-5||s.ovr>t[2]+8)return;const wage=Math.round((s.wage*(.9+Math.random()*1.8))/50)*50;s.transferOffers.push({club:t[0],league:t[1],wage,years:3,day:s.day,season:s.season});event('Transfer interest',t[0]+' opened talks with '+s.name);note('Transfer interest: '+t[0])}
+  function national(s){if(s.ovr<78||s.reputation<48||Math.random()>.025)return;s.nationalTeam=s.nationalTeam||s.nation;if(Math.random()<.65){s.nationalCaps++;event('National team','Called up for '+s.nationalTeam);note('National team call-up!')}}
+  window.OMS_ACCEPT_OFFER=i=>{const s=stateOf();if(!s)return;ensure(s);const a=s.transferOffers.slice().reverse(),o=a[i];if(!o)return;s.club=o.club;s.wage=o.wage;s.contractYears=o.years;s.transferOffers=[];s.managerTrust=55;s.role='ROTATION';event('Transfer completed',s.name+' joined '+s.club);save();window.render?.();note('Transfer completed: '+s.club)};
+  function panel(id,html){const h=document.getElementById(id);if(!h)return;let b=h.querySelector('.oms-realism-panel');if(!b){b=document.createElement('section');b.className='panel oms-realism-panel';h.appendChild(b)}b.innerHTML=html}
+  function render(){const s=stateOf();if(!s)return;ensure(s);panel('squad','<div class="eyebrow">PLAYER CAREER</div><h2>'+role(s)+'</h2><div class="cards"><div class="card"><div class="eyebrow">MANAGER</div><h3>'+s.manager+'</h3><p class="muted">Trust '+Math.round(s.managerTrust)+'%</p></div><div class="card"><div class="eyebrow">MINUTES</div><h3>'+s.minutes+'</h3><p class="muted">'+s.starts+' starts · '+s.subApps+' substitute appearances</p></div><div class="card"><div class="eyebrow">REPUTATION</div><h3>'+Math.round(s.reputation)+'</h3></div></div>');panel('transfers','<div class="eyebrow">PLAYER CAREER · TRANSFERS</div><h2>CLUB INTEREST</h2>'+((s.transferOffers||[]).length?s.transferOffers.slice().reverse().map((o,i)=>'<div class="card" style="margin-top:10px"><b>'+o.club+'</b><p class="muted">'+o.league+' · €'+o.wage+'k/week · '+o.years+' years</p><button class="action" onclick="OMS_ACCEPT_OFFER('+i+')">ACCEPT →</button></div>').join(''):'<p class="muted">No offers yet. Perform well to attract clubs.</p>'));panel('agent','<div class="eyebrow">CONTRACT</div><h2>'+s.club+'</h2><div class="cards"><div class="card"><div class="eyebrow">WEEKLY WAGE</div><h3>€'+s.wage+'k</h3></div><div class="card"><div class="eyebrow">CONTRACT</div><h3>'+s.contractYears+' years</h3></div><div class="card"><div class="eyebrow">MARKET VALUE</div><h3>€'+Math.max(1,Math.round(s.ovr*s.ovr*.025+s.reputation*.3))+'m</h3></div></div>');panel('world','<div class="eyebrow">FOOTBALL WORLD</div><h2>CAREER EVENTS</h2><div class="news">'+(s.careerEvents||[]).slice(-6).reverse().map(e=>'<div>⚽ <b>'+e.title+'</b> — '+e.detail+'</div>').join('')+'</div>');panel('history','<div class="eyebrow">CAREER LEGACY</div><h2>CAREER RECORD</h2><div class="cards"><div class="card"><div class="eyebrow">APPS</div><h3>'+s.apps+'</h3></div><div class="card"><div class="eyebrow">GOALS</div><h3>'+s.goals+'</h3></div><div class="card"><div class="eyebrow">ASSISTS</div><h3>'+s.assists+'</h3></div><div class="card"><div class="eyebrow">AVG RATING</div><h3>'+(s.apps?(s.ratingTotal/s.apps).toFixed(1):'—')+'</h3></div></div><p class="muted">'+(s.nationalTeam||s.nation)+' · '+s.nationalCaps+' caps</p>')}
+  const oldBegin=window.beginCareer;if(oldBegin)window.beginCareer=function(){oldBegin();const s=stateOf();if(s){ensure(s);s.wage=500;s.contractYears=3;s.managerTrust=60;s.reputation=20;s.minutes=0;s.starts=0;s.subApps=0;s.benchApps=0;s.nationalCaps=0;s.nationalGoals=0;s.transferOffers=[];s.injuredDays=0;event('Career started',s.name+' begins at '+s.club);render()}};
+  const oldSim=window.simulateMatch;if(oldSim)window.simulateMatch=function(){const s=stateOf();if(!s)return;ensure(s);if(s.injuredDays>0){note('Unavailable for '+s.injuredDays+' more days');return}oldSim();addMatchRealism();window.render?.();render()};
+  const oldAdvance=window.advance;if(oldAdvance)window.advance=function(n){const s=stateOf();if(!s)return;ensure(s);const d=Math.max(1,Math.min(365,Math.floor(num(n,1))));for(let i=0;i<d;i++){if(s.injuredDays>0)s.injuredDays--;s.trainingLoad=clamp(num(s.trainingLoad)-3,0,100);if(!s.injuredDays&&s.fitness<60)s.fitness=clamp(s.fitness+2,0,100)}oldAdvance(d);save();render()};
+  const oldRender=window.render;window.render=function(){oldRender?.();setTimeout(render,0)};
+  setTimeout(render,150);
+})();
+''', encoding='utf-8')
+          # Keep the helper workflow one-shot so it does not create a loop.
+          wf=Path('.github/workflows/repair-realism.yml')
+          if wf.exists(): wf.unlink()
+      - name: Commit stable realism pack
+        run: |
+          git config user.name "one-more-season-bot"
+          git config user.email "actions@github.com"
+          git add realism.js .github/workflows/repair-realism.yml
+          git commit -m "Apply stable Player Career realism" || exit 0
+          git push
