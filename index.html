@@ -99,7 +99,7 @@ omsPlayerDatabasePanel();
   function renderCareerMarket(){
     const view=document.getElementById('transfers');
     if(!view || !window.OMS_PLAYERS) return;
-    const current=(window.state&&state.club)||'Your Club';
+    const current=((typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():window.state)||{}).club||'Your Club';
     const pool=[...OMS_PLAYERS].sort(()=>Math.random()-0.5).slice(0,12);
     view.innerHTML='<div class="panel"><div class="eyebrow">PLAYER CAREER · TRANSFER MARKET</div><h1>TRANSFER SHORTLIST</h1><p class="muted">Din agent följer spelare och klubbar i Premier League. Välj en spelare för scouting.</p><div class="news"><div><b>League:</b> Premier League</div><div><b>Your club:</b> '+current+'</div><div><b>Shortlist:</b> '+pool.length+' players</div></div><div class="news">'+pool.map((p,i)=>'<div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>'+p[0]+'</b><br><span class="muted">'+p[1]+' · '+p[3]+' · OVR '+p[4]+'</span></span><button class="action" onclick="omsScoutPlayer('+i+')">SCOUT</button></div>').join('')+'</div><div id="omsScoutResult" class="muted" style="margin-top:12px">Select SCOUT to view a player report.</div></div>';
     window.omsMarketPool=pool;
@@ -132,8 +132,7 @@ omsPlayerDatabasePanel();
     refresh();
   }
   function refresh(){
-    if(!window.state)return;
-    const s=window.state;
+    const s=typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():window.state;if(!s)return;
     const apps=s.apps||0, goals=s.goals||0, assists=s.assists||0;
     const a=document.getElementById('omsApps'),g=document.getElementById('omsGoals'),as=document.getElementById('omsAssists'),f=document.getElementById('omsForm');
     if(a)a.textContent=apps;if(g)g.textContent=goals;if(as)as.textContent=assists;
@@ -143,11 +142,12 @@ omsPlayerDatabasePanel();
   if(oldSim){
     window.simulateMatch=function(){
       oldSim();
-      if(window.state){
-        state.apps=(state.apps||0)+1;
+      const active=typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():window.state;
+      if(active){
+        active.apps=(active.apps||0)+1;
         const r=Math.random();
-        if(r<0.32)state.goals=(state.goals||0)+1;
-        if(r<0.38)state.assists=(state.assists||0)+1;
+        if(r<0.32)active.goals=(active.goals||0)+1;
+        if(r<0.38)active.assists=(active.assists||0)+1;
         if(typeof save==='function')save();
       }
       refresh();
@@ -1377,12 +1377,12 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
 (()=> {
  const KEY='omsMega3V1';
  function st(){return window.OMS_GET_STATE?window.OMS_GET_STATE():JSON.parse(localStorage.getItem('omsCareerStable3')||'{}')}
- function save3(x){if(window.OMS_CURRENT_STATE)window.OMS_CURRENT_STATE=x;localStorage.setItem('omsCareerStable3',JSON.stringify(x));if(window.OMS_GET_STATE)window.OMS_GET_STATE=()=>x;try{if(window.save)window.save(x)}catch(e){}}
+ function save3(x){window.OMS_CURRENT_STATE=x;localStorage.setItem('omsCareerStable3',JSON.stringify(x));try{if(window.save)window.save(x)}catch(e){}}
  function esc(x){return String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
  function render(){
    const home=document.getElementById('home'); if(!home)return;
    let old=document.getElementById('mega3'); if(old)old.remove();
-   const x=st(); x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   const x=st(); if(!x||typeof x!=='object')return; x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
    const o=x.m3.objectives,c=x.m3.completed;
    const pct=(a,b)=>Math.min(100,Math.round((a/Math.max(1,b))*100));
    const box=document.createElement('div');box.id='mega3';box.className='panel';
@@ -1395,18 +1395,39 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
    home.appendChild(box);save3(x);
  }
  window.OMS_TRAIN=function(type){
-   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   const x=st();if(!x||typeof x!=='object'){toast&&toast('Create a career first');return}
+   x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0,trainingLevels:{finishing:0,fitness:0,passing:0}};
    if(x.m3.trainingDays>=3){toast&&toast('Weekly training limit reached');return}
-   x.m3.trainingDays++;x.fitness=Math.max(55,(x.fitness||80)-3);x.sharp=Math.min(100,(x.sharp||70)+6);
-   if(type==='finishing')x.goals=(x.goals||0)+0;
-   if(type==='fitness')x.fitness=Math.min(100,x.fitness+5);
-   if(type==='passing')x.assists=(x.assists||0)+0;
-   save3(x);toast&&toast(type.toUpperCase()+' training completed');render();
+   if(!['finishing','fitness','passing'].includes(type)){toast&&toast('Choose a valid training plan');return}
+   x.m3.trainingLevels=x.m3.trainingLevels||{finishing:0,fitness:0,passing:0};
+   x.m3.trainingDays++;x.m3.training=(Number(x.m3.training)||0)+1;
+   const labels={finishing:'Finishing & movement',fitness:'Fitness & conditioning',passing:'Passing & vision'};
+   const levelKey=type;
+   x.m3.trainingLevels[levelKey]=(Number(x.m3.trainingLevels[levelKey])||0)+1;
+   if(type==='finishing'){
+     x.sharp=Math.min(100,(Number(x.sharp)||70)+7);
+     x.fitness=Math.max(35,(Number(x.fitness)||80)-5);
+     x.development=(Number(x.development)||0)+1;
+   }else if(type==='fitness'){
+     x.fitness=Math.min(100,(Number(x.fitness)||70)+8);
+     x.sharp=Math.max(35,(Number(x.sharp)||70)-1);
+     x.trainingLoad=Math.max(0,(Number(x.trainingLoad)||0)-5);
+   }else{
+     x.sharp=Math.min(100,(Number(x.sharp)||70)+3);
+     x.morale=Math.min(100,(Number(x.morale)||70)+2);
+     x.fitness=Math.max(35,(Number(x.fitness)||80)-3);
+   }
+   if(typeof window.advance==='function')window.advance(1);else x.day=(Number(x.day)||1)+1;
+   x.m3.lastTraining=labels[type]+' · session '+x.m3.trainingLevels[type];
+   x.m3.events=x.m3.events||[];x.m3.events.unshift(x.m3.lastTraining+' completed');x.m3.events=x.m3.events.slice(0,6);
+   save3(x);render();
+   if(typeof window.render==='function')window.render();
+   toast&&toast(labels[type]+' completed · day advanced');
  };
  window.OMS_EVENT=function(){
-   const x=st();x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
+   const x=st();if(!x||typeof x!=='object'){toast&&toast('Create a career first');return}x.m3=x.m3||{training:0,objectives:{apps:10,goals:3,assists:2},completed:{apps:0,goals:0,assists:0},events:[],trainingDays:0};
    const events=['Coach says your recent form has been noticed.','Agent reports growing interest from another club.','Teammates praise your latest performance.','You are pushing for a bigger role in the squad.','Scouts have added you to their watchlist.','The manager wants more consistency from you.'];
-   x.m3.events.unshift(events[Math.floor(Math.random()*events.length)]);x.m3.events=x.m3.events.slice(0,6);save3(x);render();
+   x.m3.events.unshift(events[Math.floor(Math.random()*events.length)]);x.m3.events=x.m3.events.slice(0,6);save3(x);render();toast&&toast('New career event added to the feed');
  };
  const old=window.simulateMatch;
  window.simulateMatch=function(){
@@ -1425,7 +1446,8 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
    if((x.day||0)%7===0)x.m3.trainingDays=0;
    save3(x);render();
  };
- setTimeout(render,500);
+ window.OMS_MEGA3_RENDER=render;
+  setTimeout(render,500);
 })();
 </script>
 <style id="mega-clean-ui">
