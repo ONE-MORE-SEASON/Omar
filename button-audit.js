@@ -24,6 +24,14 @@
     return true;
   };
 
+  // Pressing Enter in the custom day field should trigger the same action as SIMULATE.
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && event.target && event.target.id === 'omsCleanCustom') {
+      event.preventDefault();
+      if (typeof window.OMS_SIM_CUSTOM_CLEAN === 'function') window.OMS_SIM_CUSTOM_CLEAN();
+    }
+  });
+
   function updateDaySimulator() {
     const s = stateNow();
     if (!s) return;
