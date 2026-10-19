@@ -1388,7 +1388,7 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
    const box=document.createElement('div');box.id='mega3';box.className='panel';
    box.innerHTML='<div class="eyebrow">MEGA GAMEPLAY · 3.0</div><h1>CAREER CONTROL ROOM</h1><p class="muted">Train, manage your week, chase objectives and react to career events.</p>'+
    '<div class="m3Grid">'+
-   '<div class="m3Card"><h3>WEEKLY TRAINING</h3><div class="m3Big">'+x.m3.trainingDays+'/3</div><div class="m3Small">Training sessions this week</div><div class="m3Bar"><div class="m3Fill" style="width:'+pct(x.m3.trainingDays,3)+'%"></div></div><div class="m3Btns"><button onclick="OMS_TRAIN('finishing')">Finishing</button><button onclick="OMS_TRAIN('fitness')">Fitness</button><button onclick="OMS_TRAIN('passing')">Passing</button></div></div>'+
+   '<div class="m3Card"><h3>WEEKLY TRAINING</h3><div class="m3Big">'+x.m3.trainingDays+'/3</div><div class="m3Small">Training sessions this week</div><div class="m3Small">Last: '+esc(x.m3.lastTraining||'No session yet')+'</div><div class="m3Bar"><div class="m3Fill" style="width:'+pct(x.m3.trainingDays,3)+'%"></div></div><div class="m3Btns"><button onclick="OMS_TRAIN('finishing')">Finishing</button><button onclick="OMS_TRAIN('fitness')">Fitness</button><button onclick="OMS_TRAIN('passing')">Passing</button></div></div>'+
    '<div class="m3Card"><h3>SEASON OBJECTIVES</h3><div class="m3Small">Appearances</div><b>'+c.apps+' / '+o.apps+'</b><div class="m3Bar"><div class="m3Fill" style="width:'+pct(c.apps,o.apps)+'%"></div></div><div class="m3Small" style="margin-top:8px">Goals: '+c.goals+' / '+o.goals+' · Assists: '+c.assists+' / '+o.assists+'</div></div>'+
    '<div class="m3Card"><h3>CAREER EVENT</h3><div class="m3Event">'+esc((x.m3.events||[])[0]||'No new event. Simulate a match to generate career moments.')+'</div><div class="m3Btns"><button onclick="OMS_EVENT()">ROLL EVENT</button></div></div>'+
    '</div>';
@@ -1400,7 +1400,8 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
    if(x.m3.trainingDays>=3){toast&&toast('Weekly training limit reached');return}
    if(!['finishing','fitness','passing'].includes(type)){toast&&toast('Choose a valid training plan');return}
    x.m3.trainingLevels=x.m3.trainingLevels||{finishing:0,fitness:0,passing:0};
-   x.m3.trainingDays++;x.m3.training=(Number(x.m3.training)||0)+1;
+   if(typeof window.advance==='function')window.advance(1);else x.day=(Number(x.day)||1)+1;
+   x.m3.trainingDays=(Number(x.m3.trainingDays)||0)+1;x.m3.training=(Number(x.m3.training)||0)+1;
    const labels={finishing:'Finishing & movement',fitness:'Fitness & conditioning',passing:'Passing & vision'};
    const levelKey=type;
    x.m3.trainingLevels[levelKey]=(Number(x.m3.trainingLevels[levelKey])||0)+1;
@@ -1417,7 +1418,6 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
      x.morale=Math.min(100,(Number(x.morale)||70)+2);
      x.fitness=Math.max(35,(Number(x.fitness)||80)-3);
    }
-   if(typeof window.advance==='function')window.advance(1);else x.day=(Number(x.day)||1)+1;
    x.m3.lastTraining=labels[type]+' · session '+x.m3.trainingLevels[type];
    x.m3.events=x.m3.events||[];x.m3.events.unshift(x.m3.lastTraining+' completed');x.m3.events=x.m3.events.slice(0,6);
    save3(x);render();
