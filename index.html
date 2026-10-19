@@ -205,10 +205,11 @@ omsPlayerDatabasePanel();
   function save(a){localStorage.setItem(KEY,JSON.stringify(a.slice(-20)))}
   function addPlayer(i){
     const p=window.OMS_PLAYERS&&window.OMS_PLAYERS[i]; if(!p)return;
+    const item=Array.isArray(p)?{name:p[0],club:p[1],league:p[2],position:p[3],ovr:p[4]}:{name:p.name,club:p.club,league:p.league,position:p.position,ovr:p.ovr};
     const a=load();
-    if(!a.some(x=>x.name===p.name)){a.push({name:p.name,club:p.club,position:p.position,ovr:p.ovr});save(a)}
+    if(!a.some(x=>x.name===item.name)){a.push(item);save(a)}
     render();
-    if(typeof window.toast==='function')window.toast(p.name+' added to shortlist');
+    if(typeof window.toast==='function')window.toast(item.name+' added to shortlist');
   }
   function render(){
     const host=document.getElementById('transfers'); if(!host)return;
@@ -1266,7 +1267,7 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
     if(sel){const current=sel.value;sel.innerHTML='<option>Hillcrest Academy</option>'+window.OMS_CLUBS.map(c=>'<option>'+c+'</option>').join('');if([...sel.options].some(o=>o.value===current))sel.value=current}
     if(typeof omsPlayerDatabasePanel==='function')omsPlayerDatabasePanel();
   }
-  function current(){try{return JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
+  function current(){try{return typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
   function saveMega(s){localStorage.setItem('omsCareerStable3',JSON.stringify(s));window.OMS_CURRENT_STATE=s}
   function ensure(s){
     if(!s)return s;
@@ -1321,7 +1322,7 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
   "Serie A":["Inter","AC Milan","Juventus","Roma","Napoli"],
   "Ligue 1":["Paris Saint-Germain","Lille","Marseille"]
  };
- function s(){try{return JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
+ function s(){try{return typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():JSON.parse(localStorage.getItem('omsCareerStable3')||'null')}catch(e){return null}}
  function save(x){localStorage.setItem('omsCareerStable3',JSON.stringify(x));window.OMS_CURRENT_STATE=x}
  function ensure(x){if(!x)return x;x.apps=x.apps||0;x.goals=x.goals||0;x.assists=x.assists||0;x.value=x.value||150000;x.reputation=x.reputation||50;x.trophies=x.trophies||0;x.contractYears=x.contractYears||2;x.wage=x.wage||1200;x.formHistory=x.formHistory||[];x.matchHistory=x.matchHistory||[];x.inbox=x.inbox||[];x.transferInterest=x.transferInterest||[];x.seasonGoals=x.seasonGoals||0;x.seasonAssists=x.seasonAssists||0;return x}
  function navRender(){
@@ -1334,7 +1335,7 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
  }
  window.OMS_TARGET=function(i){
   const p=window.OMS_MARKET2?.[i];if(!p)return;
-  const st=ensure(s());st.transferInterest=st.transferInterest||[];
+  const st=ensure(s());if(!st){toast('Create a career first');return}st.transferInterest=st.transferInterest||[];
   if(!st.transferInterest.some(x=>x.name===p[0])){st.transferInterest.push({name:p[0],club:p[1],ovr:p[4]});st.inbox.unshift('Agent requested interest in '+p[0]+' from '+p[1]);st.inbox=st.inbox.slice(0,20);save(st);toast('Interest request sent · '+p[0])}else toast('Already tracking '+p[0]);
   navRender();
  };
@@ -1352,12 +1353,13 @@ body{background:radial-gradient(circle at 15% 0,#173e62 0,transparent 28%),radia
  function agent(){
   const v=document.getElementById('agent');if(!v)return;
   const st=ensure(s());
+  if(!st){v.innerHTML='<div class="panel"><h1>CONTRACT CENTER</h1><p class="muted">Create a career first to manage your agent and contract.</p></div>';return}
   v.innerHTML='<div class="panel"><div class="eyebrow">AGENT & MONEY · 2.0</div><h1>CONTRACT CENTER</h1><p class="muted">Your agent tracks value, wages and contract length.</p><div class="kpiGrid"><div class="kpi"><span class="muted">MARKET VALUE</span><b>€'+Math.round(st.value/1000)+'K</b></div><div class="kpi"><span class="muted">WEEKLY WAGE</span><b>€'+st.wage+'</b></div><div class="kpi"><span class="muted">YEARS</span><b>'+st.contractYears+'</b></div><div class="kpi"><span class="muted">REPUTATION</span><b>'+st.reputation+'</b></div><div class="kpi"><span class="muted">BONUS</span><b>€'+Math.round(st.wage*8)+'</b></div></div><button class="action" onclick="window.OMS_RENEW()">NEGOTIATE RENEWAL</button></div>';
  }
- window.OMS_RENEW=function(){const st=ensure(s());st.contractYears=Math.min(5,st.contractYears+1);st.wage=Math.round(st.wage*1.12);save(st);toast('Contract renewed · wage increased');agent()};
+ window.OMS_RENEW=function(){const st=ensure(s());if(!st){toast('Create a career first');return}if(st.contractYears>=5){toast('Contract is already at the 5-year limit');agent();return}st.contractYears=Math.min(5,st.contractYears+1);st.wage=Math.round(st.wage*1.12);save(st);toast('Contract renewed · wage increased');agent()};
  function history(){
   const v=document.getElementById('history');if(!v)return;
-  const st=ensure(s());v.innerHTML='<div class="panel"><div class="eyebrow">CAREER LEGACY · 2.0</div><h1>PLAYER HISTORY</h1><div class="kpiGrid"><div class="kpi"><span class="muted">APPEARANCES</span><b>'+st.apps+'</b></div><div class="kpi"><span class="muted">GOALS</span><b>'+st.goals+'</b></div><div class="kpi"><span class="muted">ASSISTS</span><b>'+st.assists+'</b></div><div class="kpi"><span class="muted">TROPHIES</span><b>'+st.trophies+'</b></div><div class="kpi"><span class="muted">VALUE</span><b>€'+Math.round(st.value/1000)+'K</b></div></div><h2 style="margin-top:24px">MATCH LOG</h2><div class="news">'+(st.matchHistory||[]).slice(-15).reverse().map(x=>'<div>⚽ '+x+'</div>').join('')+'</div></div>';
+  const st=ensure(s());if(!st){v.innerHTML='<div class="panel"><h1>PLAYER HISTORY</h1><p class="muted">Create a career first to build your career record.</p></div>';return}v.innerHTML='<div class="panel"><div class="eyebrow">CAREER LEGACY · 2.0</div><h1>PLAYER HISTORY</h1><div class="kpiGrid"><div class="kpi"><span class="muted">APPEARANCES</span><b>'+st.apps+'</b></div><div class="kpi"><span class="muted">GOALS</span><b>'+st.goals+'</b></div><div class="kpi"><span class="muted">ASSISTS</span><b>'+st.assists+'</b></div><div class="kpi"><span class="muted">TROPHIES</span><b>'+st.trophies+'</b></div><div class="kpi"><span class="muted">VALUE</span><b>€'+Math.round(st.value/1000)+'K</b></div></div><h2 style="margin-top:24px">MATCH LOG</h2><div class="news">'+(st.matchHistory||[]).slice(-15).reverse().map(x=>'<div>⚽ '+x+'</div>').join('')+'</div></div>';
  }
  const oldSim=window.simulateMatch;window.simulateMatch=function(){oldSim();const st=ensure(s());const r=Math.random();st.matchHistory.push('Day '+st.day+' · '+(r<.45?'Win':'Match completed')+' · '+st.goals+' career goals');st.formHistory.push(st.morale);if(st.matchHistory.length>30)st.matchHistory.shift();save(st);};
  const oldShow=window.show;window.show=function(id,b){oldShow(id,b);if(id==='transfers')setTimeout(navRender,10);if(id==='squad')setTimeout(squad,10);if(id==='world')setTimeout(world,10);if(id==='agent')setTimeout(agent,10);if(id==='history')setTimeout(history,10)};
