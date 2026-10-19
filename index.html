@@ -1556,7 +1556,7 @@ a{color:var(--c-accent)!important}
 (()=> {
  const KEY='omsCareerStable3';
  const get=()=>window.OMS_GET_STATE?window.OMS_GET_STATE():JSON.parse(localStorage.getItem(KEY)||'{}');
- const save6=x=>{localStorage.setItem(KEY,JSON.stringify(x));window.OMS_CURRENT_STATE=x;if(window.OMS_GET_STATE)window.OMS_GET_STATE=()=>x;try{window.save(x)}catch(e){}};
+ const save6=x=>{localStorage.setItem(KEY,JSON.stringify(x));window.OMS_CURRENT_STATE=x;try{window.save(x)}catch(e){}};
  const ensure=x=>{x=x||{};x.m6=x.m6||{decisions:0,last:'No career decision made yet.'};return x};
  function render6(){
    const home=document.getElementById('home');if(!home)return;
