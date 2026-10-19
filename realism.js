@@ -8,7 +8,7 @@
   const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
   const num = (v,d=0) => Number.isFinite(Number(v)) ? Number(v) : d;
   const esc = s => String(s ?? '').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
-  const get = () => window.state;
+  const get = () => typeof window.OMS_GET_STATE === 'function' ? window.OMS_GET_STATE() : window.state;
   const saveNow = () => { try { if (typeof window.save === 'function') window.save(); else localStorage.setItem(KEY,JSON.stringify(get())); } catch(e){} };
   const toast = msg => { if (typeof window.toast === 'function') window.toast(msg); };
 
