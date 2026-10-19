@@ -69,7 +69,7 @@
 
   function renderCompetitions(){
     const app=document.getElementById('app');if(!app||app.classList.contains('hidden'))return;css();
-    const nav=document.getElementById('nav');if(nav&&!document.getElementById('omsCompNav')){const b=document.createElement('button');b.id='omsCompNav';b.textContent='COMPETITIONS';b.onclick=()=>showCleanView('omsCompetitionView','omsCompNav');nav.appendChild(b)}
+    const nav=document.getElementById('nav');if(nav&&!document.getElementById('omsCompNav')){const b=document.createElement('button');b.id='omsCompNav';b.textContent='COMPETITIONS';b.onclick=()=>{view.dataset.mode='TABLE';renderCompetitions();showCleanView('omsCompetitionView','omsCompNav');};nav.appendChild(b)}
     let view=document.getElementById('omsCompetitionView');if(!view){view=document.createElement('section');view.id='omsCompetitionView';view.className='view';view.innerHTML='<div class="oms-comp-view"></div>';app.querySelector('main').appendChild(view)}
     const center=view.firstElementChild;const idx=Math.min(comps.length-1,Math.max(0,Number(view.dataset.idx||0)));const c=comps[idx];const day=Math.max(1,Number(get().day||1));
     const rows=c[2].map((team,i)=>{const played=Math.max(1,Math.floor(day/3)+(i%3));const w=Math.max(0,Math.floor(played*.5)-((i+day)%4===0?1:0));const dr=Math.max(0,Math.floor(played*.2)+((i+day)%5===0?1:0));const l=Math.max(0,played-w-dr);const gd=w*2+dr-(l*2);return{team,p:played,w,d:dr,l,gd,pts:w*3+dr,pos:i}}).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||a.team.localeCompare(b.team));
