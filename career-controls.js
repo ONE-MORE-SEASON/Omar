@@ -5,7 +5,7 @@
   window.__OMS_CLEAN_HUB__=true;
 
   const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
-  const get=()=>window.state||{};
+  const get=()=>((typeof window.OMS_GET_STATE==='function'?window.OMS_GET_STATE():window.state)||{});
   const club=()=>get().club||get().team||document.querySelector('#club')?.value||'Hillcrest Academy';
   const comps=[
     ['Premier League','England',['Arsenal','Chelsea','Liverpool','Manchester City','Manchester United','Tottenham','Aston Villa','Newcastle United','West Ham United','Brighton','Crystal Palace','Everton','Fulham','Wolverhampton','Brentford','Nottingham Forest','Bournemouth','Leicester City']],
