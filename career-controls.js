@@ -10,7 +10,7 @@
   const comps=[
     ['Premier League','England',['Arsenal','Chelsea','Liverpool','Manchester City','Manchester United','Tottenham','Aston Villa','Newcastle United','West Ham United','Brighton','Crystal Palace','Everton','Fulham','Wolverhampton','Brentford','Nottingham Forest','Bournemouth','Leicester City']],
     ['La Liga','Spain',['Real Madrid','Barcelona','Atlético Madrid','Athletic Club','Real Sociedad','Villarreal','Real Betis','Sevilla','Valencia','Girona','Getafe','Celta Vigo','Osasuna','Mallorca','Rayo Vallecano','Alavés','Las Palmas','Espanyol']],
-    ['Bundesliga','Germany',['Bayern Munich','Borussia Dortmund','Bayer Leverkusen','RB Leipzig','VfB Stuttgart','Wolfsburg','Eintracht Frankfurt','SC Freiburg','Hoffenheim','Union Berlin','Mainz 05','Werder Bremen','Borussia Mönchengladbach','Augsburg','Heidenheim','St. Pauli','Holstein Kiel']],
+    ['Bundesliga','Germany',['Bayern Munich','Borussia Dortmund','Bayer Leverkusen','RB Leipzig','VfB Stuttgart','Wolfsburg','Eintracht Frankfurt','SC Freiburg','Hoffenheim','Union Berlin','Mainz 05','Werder Bremen','Borussia Mönchengladbach','Augsburg','Heidenheim','St. Pauli','Hamburger SV','1. FC Köln']],
     ['Serie A','Italy',['Inter','AC Milan','Juventus','Napoli','Roma','Lazio','Atalanta','Fiorentina','Bologna','Torino','Genoa','Monza','Udinese','Parma','Cagliari','Como','Lecce','Empoli','Verona','Venezia']],
     ['Ligue 1','France',['Paris Saint-Germain','Marseille','Lille','Monaco','Lyon','Nice','Lens','Rennes','Strasbourg','Nantes','Montpellier','Toulouse','Brest','Reims','Auxerre','Saint-Étienne','Le Havre','Angers']],
     ['Eredivisie','Netherlands',['Ajax','PSV Eindhoven','Feyenoord','AZ Alkmaar','Twente','Utrecht','Groningen','Heerenveen','NEC Nijmegen','Sparta Rotterdam','Go Ahead Eagles','Fortuna Sittard','PEC Zwolle','Heracles','NAC Breda','Willem II']],
@@ -73,7 +73,7 @@
   const clubPower={
     'Manchester City':89,'Arsenal':88,'Liverpool':88,'Chelsea':83,'Newcastle United':82,'Aston Villa':82,'Tottenham':81,'Manchester United':81,'Brighton':78,'Bournemouth':77,'West Ham United':76,'West Ham':76,'Crystal Palace':75,'Brentford':75,'Nottingham Forest':74,'Fulham':74,'Everton':72,'Wolverhampton':72,'Wolves':72,'Leicester City':68,
     'Real Madrid':92,'Barcelona':89,'Atlético Madrid':86,'Athletic Club':80,'Villarreal':81,'Real Sociedad':79,'Real Betis':78,'Girona':78,'Sevilla':77,'Valencia':76,'Celta Vigo':75,'Osasuna':74,'Getafe':73,'Espanyol':73,'Mallorca':73,'Rayo Vallecano':73,'Alavés':72,'Las Palmas':72,
-    'Bayern Munich':91,'Bayer Leverkusen':87,'Borussia Dortmund':85,'RB Leipzig':84,'VfB Stuttgart':81,'Eintracht Frankfurt':80,'SC Freiburg':78,'Wolfsburg':77,'Hoffenheim':75,'Union Berlin':74,'Mainz 05':74,'Werder Bremen':75,
+    'Bayern Munich':91,'Bayer Leverkusen':87,'Borussia Dortmund':85,'RB Leipzig':84,'VfB Stuttgart':81,'Eintracht Frankfurt':80,'SC Freiburg':78,'Wolfsburg':77,'Hoffenheim':75,'Union Berlin':74,'Mainz 05':74,'Werder Bremen':75,'Hamburger SV':74,'1. FC Köln':73,
     'Inter':89,'Napoli':85,'AC Milan':84,'Juventus':84,'Atalanta':84,'Roma':81,'Lazio':80,'Bologna':80,'Fiorentina':79,'Torino':75,'Genoa':74,'Como':75,'Parma':72,
     'Paris Saint-Germain':89,'Monaco':82,'Marseille':81,'Lille':80,'Lyon':79,'Nice':78,'Lens':77,'Rennes':77,'Strasbourg':74,
     'PSV Eindhoven':85,'Feyenoord':82,'Ajax':80,'AZ Alkmaar':78,'Twente':76,'Utrecht':74,
@@ -140,7 +140,16 @@
         const homeLambda=Math.max(.25,Math.min(3.3,1.42*Math.exp((home.strength+2-away.strength)/17)));
         const awayLambda=Math.max(.18,Math.min(2.8,1.18*Math.exp((away.strength-home.strength-2)/18)));
         const homeGoals=poissonGoals(homeLambda,rng),awayGoals=poissonGoals(awayLambda,rng);
-        const result={...game,homeGoals,awayGoals};
+        // If the user played this exact scheduled fixture, use that actual career score.
+        let recorded=null;
+        const active=get(),activeClub=String(active.club||active.team||'');
+        if(game.round<=roundIndex && activeClub && (normName(game.home)===normName(activeClub)||normName(game.away)===normName(activeClub))){
+          const userHome=normName(game.home)===normName(activeClub),opponent=userHome?game.away:game.home;
+          const saved=Array.isArray(active.matchHistory)?active.matchHistory:[];
+          recorded=saved.find(m=>Number(m.season||1)===Number(season||1)&&Math.floor((Number(m.day||1)+6)/7)===game.round&&normName(m.club||'')===normName(activeClub)&&normName(m.opponent||'')===normName(opponent)&&Number.isFinite(Number(m.goalsFor))&&Number.isFinite(Number(m.goalsAgainst)));
+          if(recorded){if(userHome){homeGoals=Number(recorded.goalsFor);awayGoals=Number(recorded.goalsAgainst)}else{homeGoals=Number(recorded.goalsAgainst);awayGoals=Number(recorded.goalsFor)}}
+        }
+        const result={...game,homeGoals,awayGoals,careerResult:Boolean(recorded)};
         if(game.round<=roundIndex){
           home.p++;away.p++;home.gf+=homeGoals;home.ga+=awayGoals;away.gf+=awayGoals;away.ga+=homeGoals;
           if(homeGoals>awayGoals){home.w++;home.pts+=3;away.l++}
