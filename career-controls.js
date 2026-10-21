@@ -34,6 +34,10 @@
     .oms-simnote{margin-top:10px;padding:8px 10px;border-radius:8px;background:#06131d;color:#8faec7;font-size:10px}.oms-simnote b{color:#dff5ff}
     .oms-profile{margin-top:18px}.oms-profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:13px}.oms-profile-stat{padding:13px;border:1px solid #1e4d69;border-radius:12px;background:#081b2b}.oms-profile-stat span{font-size:9px;color:#7599b3;letter-spacing:1px;font-weight:900}.oms-profile-stat b{display:block;font-size:20px;margin-top:5px}
     .oms-comp-view{margin-top:0}.oms-comp-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}.oms-kicker{font-size:10px;letter-spacing:1.7px;color:#79d0ff;font-weight:950}.oms-comp-title{font-size:26px;font-weight:950;margin-top:4px}.oms-select{min-width:230px;padding:10px 12px;border-radius:9px;border:1px solid #28638c;background:#071a2a;color:#fff;font-weight:800}.oms-tabs{display:flex;gap:6px;overflow:auto;margin-top:14px}.oms-tab{border:1px solid #255a7d;background:#0a2237;color:#9db9cd;border-radius:8px;padding:8px 11px;font-size:10px;font-weight:900;white-space:nowrap}.oms-tab.active{border-color:#18d79b;background:#07352f;color:#fff}.oms-comp-grid{display:grid;grid-template-columns:1.5fr .5fr;gap:13px;margin-top:13px}.oms-comp-box{border:1px solid #184b6e;border-radius:15px;background:linear-gradient(145deg,#091e30f7,#05121ef7);padding:14px;overflow:auto}.oms-table{width:100%;border-collapse:collapse;font-size:11px}.oms-table th{padding:8px 6px;color:#7599b3;font-size:9px;text-align:left;border-bottom:1px solid #1b455f}.oms-table td{padding:9px 6px;border-bottom:1px solid #12354b}.oms-table tr.user td{background:#07352f;color:#fff}.oms-table .club{font-weight:850}.oms-table .pts{font-weight:950}
+    .oms-matchup-ratings{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:9px 0 3px}
+    .oms-rating-team{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .oms-rating-team>small{font-size:8px;letter-spacing:.11em;color:#86a3bb;font-weight:900}
+    .oms-rating-separator{font-size:9px;color:#62839b;font-weight:900}
     .oms-team-rating{display:flex;align-items:center;gap:7px;margin-top:4px;line-height:1}
     .oms-team-stars{font-size:12px;letter-spacing:1px;color:#ffd36a;text-shadow:0 0 8px rgba(255,211,106,.13);white-space:nowrap}
     .oms-team-stars .empty{color:#405369;text-shadow:none}
@@ -91,13 +95,13 @@
     'Al-Hilal':85,'Al Nassr':83,'Al-Ahli':82,'Al-Ittihad':82,'Al-Qadsiah':76,
     'Inter Miami':80,'LAFC':79,'Columbus Crew':78,'Vancouver Whitecaps':77,'LA Galaxy':76,'Seattle Sounders':76,
     'Celtic':83,'Rangers':81,'Club Brugge':81,'Anderlecht':77,'Genk':77,'Dinamo Zagreb':81,'Hajduk Split':77,'Red Bull Salzburg':82,'Sturm Graz':77,'Rapid Wien':74,
-    'Malmö FF':78,'Malmö':78,'Hammarby':76,'Djurgårdens IF':76,'Djurgården':76,'BK Häcken':75,'IF Elfsborg':74,'Elfsborg':74,'AIK':74,'IFK Göteborg':72,'IFK Norrköping':71,'IF Brommapojkarna':70,'GAIS':71,'IFK Värnamo':69,'Kalmar FF':69,'Halmstads BK':69,'Sirius':70,'Mjällby AIF':72,'Östers IF':67
+    'Hillcrest Academy':59,'Youth Academy':57,'Malmö FF':78,'Malmö':78,'Hammarby':76,'Djurgårdens IF':76,'Djurgården':76,'BK Häcken':75,'IF Elfsborg':74,'Elfsborg':74,'AIK':74,'IFK Göteborg':72,'IFK Norrköping':71,'IF Brommapojkarna':70,'GAIS':71,'IFK Värnamo':69,'Kalmar FF':69,'Halmstads BK':69,'Sirius':70,'Mjällby AIF':72,'Östers IF':67
   };
   const leagueBase={'Premier League':75,'La Liga':74,'Bundesliga':74,'Serie A':74,'Ligue 1':73,'Eredivisie':72,'Primeira Liga':72,'Süper Lig':71,'Brasileirão':73,'MLS':70,'Saudi Pro League':72,'Scottish Premiership':70,'Belgian Pro League':70,'Croatian First Football League':69,'Austrian Bundesliga':70,'Allsvenskan':69};
   const normName = value => String(value||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'').replace(/^(fc|ac|if|bk)/,'');
   function starsFromStrength(value){
     const rating=Number(value)||60;
-    return rating>=88?5:rating>=81?4:rating>=73?3:rating>=66?2:1;
+    return rating>=88?5:rating>=80?4:rating>=72?3:rating>=64?2:1;
   }
   function starMarkup(value,compact=false){
     const count=starsFromStrength(value);
