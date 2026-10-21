@@ -1593,7 +1593,7 @@ a{color:var(--c-accent)!important}
      x.fitness=Math.min(100,(x.fitness||80)+8);x.morale=Math.min(100,(x.morale||70)+5);x.sharp=Math.max(40,(x.sharp||70)-2);
      x.m6.last='Protect Your Body · +8 fitness · +5 morale';
    } else {
-     x.reputation=Math.min(100,(x.reputation||50)+4);x.value=Math.round((x.value||150000)*1.025);x.morale=Math.min(100,(x.morale||70)+3);x.day=(x.day||1)+1;
+     x.reputation=Math.min(100,(x.reputation||50)+4);x.value=Math.round((x.value||150000)*1.025);x.morale=Math.min(100,(x.morale||70)+3);x.day=(x.day||1)+1;if(typeof window.checkSeason==='function')window.checkSeason();
      x.inbox=x.inbox||[];x.inbox.unshift('Agent meeting completed · your career plan is being reviewed.');x.inbox=x.inbox.slice(0,20);
      x.m6.last='Agent Meeting · +4 reputation · market value increased · +1 day';
    }
@@ -2111,6 +2111,7 @@ set('omsHomeScore','—');set('omsAwayScore','—');set('omsMatchSummary','Play 
 }
 function simMatchV6(){
 if(!state)return;ensure(state);
+if(num(state.injuredDays)>0){if(typeof toast==='function')toast('Unavailable: '+state.injuredDays+' day'+(state.injuredDays===1?'':'s')+' injured. Advance time or recover first.');if(typeof render==='function')render();return;}
 const s=state;let scheduledDay=Math.max(num(s.day,1),num(s.nextMatchDay,1));if(scheduledDay>300){s.season=num(s.season,1)+1;scheduledDay=1;s.nextMatchDay=1;s.seasonStats={apps:0,goals:0,assists:0,motm:0,ratingTotal:0,points:0};s.form=[];}s.day=scheduledDay;const opp=pickOpponent(s),dayBefore=scheduledDay;
 const ratingBase=num(s.ovr,67)*0.44+num(s.fitness,90)*0.13+num(s.sharp,80)*0.12+num(s.morale,75)*0.11+17;
 const difficulty=s.difficulty==='legend'?4:s.difficulty==='hard'?2:0;
