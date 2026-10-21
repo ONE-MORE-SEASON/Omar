@@ -190,8 +190,8 @@
     preview.appendChild(desc);
   }
   function updatePlayerClubCard() {
-    const status = document.querySelector('#home .panel h2');
-    const name = window.state?.club;
+    const activeState = typeof window.OMS_GET_STATE === 'function' ? window.OMS_GET_STATE() : window.state;
+    const name = activeState?.club || activeState?.team;
     if (!name) return;
     const statusPanel = [...document.querySelectorAll('.panel')].find(p => p.querySelector('h2')?.textContent.trim() === 'PLAYER STATUS');
     if (!statusPanel) return;
