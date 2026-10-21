@@ -35,12 +35,12 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 .match-form .win{background:#0b493a;color:#7af0c7}.match-form .draw{background:#423a1a;color:#ffe08a}.match-form .loss{background:#49212b;color:#ffb6c0}
 @media(max-width:850px){.match-engine{grid-template-columns:1fr}.match-stat-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
-<link rel="stylesheet" href="visual-overhaul.css?v=20261021-1">
+<link rel="stylesheet" href="visual-overhaul.css?v=20261021-2">
 </head>
 <body>
 <section id="creator" class="creator"><div class="creatorCard"><div class="intro"><div class="os">OS</div><div class="eyebrow">ONE MORE SEASON · CAREER SIM</div><h1>Start your football career.</h1><p>Create your player, choose your position and club, then simulate your career day by day. No 3D and no minigames — this is a pure career simulation.</p></div><div class="form"><div class="eyebrow">CAREER CREATOR</div><h2>Player information</h2><div class="formGrid"><div class="field full"><label>Name</label><input id="name" placeholder="Player name"></div><div class="field"><label>Age</label><input id="age" type="number" min="16" max="40" value="17"></div><div class="field"><label>Position</label><select id="pos"><option>ST</option><option>CF</option><option>CAM</option><option>CM</option><option>LW</option><option>RW</option><option>LB</option><option>CB</option><option>RB</option><option>GK</option></select></div><div class="field"><label>Nationality</label><select id="nation"><option>Sweden</option><option>England</option><option>Spain</option><option>France</option><option>Brazil</option><option>Germany</option><option>Portugal</option><option>Argentina</option></select></div><div class="field"><label>Starting club</label><select id="club"><option>Hillcrest Academy</option><option>BK Häcken</option><option>Real Sociedad</option><option>Villarreal</option><option>Aston Villa</option></select></div><div class="field"><label>Preferred foot</label><select id="omsFoot"><option>Right</option><option>Left</option><option>Both</option></select></div><div class="field"><label>Career pace</label><select id="omsPace"><option value="classic">Classic · 11 key decisions</option><option value="quick">Quick · faster calendar</option><option value="immersive">Immersive · more story events</option></select></div><div class="field"><label>Difficulty</label><select id="omsDifficulty"><option value="normal">Normal</option><option value="hard">Hard</option><option value="legend">Legend</option></select></div><div class="field"><label>Starting route</label><select id="omsRoute"><option value="academy">Youth academy</option><option value="bench">First-team bench</option><option value="starter">First-team starter</option><option value="loan">Loan pathway</option></select></div></div><button class="start" onclick="beginCareer()">BEGIN CAREER →</button></div></div></section>
 <div id="app" class="hidden"><header class="top"><div class="logo">OS</div><div class="brand">ONE MORE SEASON<small>CAREER SIM</small></div><nav id="nav" class="nav"></nav><div class="day">DAY <span id="day">1</span><small id="season">SEASON 1</small></div><button class="gear" id="omsSettingsButton" type="button" title="Career settings" aria-label="Open career settings">⚙</button></header><main>
-<section id="home" class="view active"><div class="hero"><div><div class="eyebrow">SIMULATION CENTER</div><h1>Clear skies, bigger dreams.</h1><div class="muted">Build your career one decision at a time.</div></div><div class="opponent"><div class="eyebrow">NEXT OPPONENT</div><strong id="opp">Hillcrest Academy (H)</strong><div class="chips"><span>LEAGUE</span><span>•</span><span>SIMULATION</span><span>•</span><span id="eventDay">DAY 1</span></div></div></div>
+<section id="home" class="view active"><div class="hero"><div><div class="eyebrow">SIMULATION CENTER</div><h1>Clear skies, bigger dreams.</h1><div class="muted">Build your career one decision at a time.</div></div><div class="opponent"><div class="eyebrow">NEXT OPPONENT</div><strong id="opp">Hillcrest Academy (H)</strong><div class="oms-matchup-ratings" id="omsMatchupRatings" aria-live="polite"></div><div class="chips"><span>LEAGUE</span><span>•</span><span>SIMULATION</span><span>•</span><span id="eventDay">DAY 1</span></div></div></div>
 
 <div class="match-engine" id="omsMatchEngine">
 <section class="match-report">
@@ -2085,13 +2085,19 @@ return pool[index];
 }
 function renderEngine(){
 if(!state)return;ensure(state);
-const last=state.matchHistory[0],ss=state.seasonStats,cs=state.careerStats;
+const last=state.matchHistory[0],ss=state.seasonStats,cs=state.careerStats,nextOpponent=pickOpponent(state);
 const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
 set('omsApps',ss.apps);set('omsGoals',ss.goals);set('omsAssists',ss.assists);set('omsMotm',ss.motm);set('omsPoints',ss.points);
 set('omsAvgRating',ss.apps?(ss.ratingTotal/ss.apps).toFixed(1):'—');
 const news=document.getElementById('news');if(news&&state.newsItems&&state.newsItems.length)news.innerHTML=state.newsItems.map((x,i)=>'<div>⚽ '+x+' <span class="muted">'+(i+1)+' recent</span></div>').join('');
 const form=document.getElementById('omsForm');
 if(form)form.innerHTML=state.form.length?state.form.slice(0,5).map(x=>'<span class="'+(x==='W'?'win':x==='D'?'draw':'loss')+'">'+x+'</span>').join(''):'<span>Not played yet</span>';
+const ratingBox=document.getElementById('omsMatchupRatings');
+if(ratingBox&&typeof window.OMS_TEAM_STARS==='function'){
+ const own=window.OMS_TEAM_STARS(state.club||'Your club',null,false);
+ const foe=window.OMS_TEAM_STARS(nextOpponent.name,nextOpponent.competition||null,false);
+ ratingBox.innerHTML='<div class="oms-rating-team"><small>YOUR CLUB</small>'+own+'</div><div class="oms-rating-separator">VS</div><div class="oms-rating-team"><small>NEXT OPPONENT</small>'+foe+'</div>';
+}
 if(last){
 set('omsHomeName',last.club);set('omsAwayName',last.opponent);set('omsHomeScore',last.goalsFor);set('omsAwayScore',last.goalsAgainst);
 set('omsMatchSummary',last.result+' · '+last.competition+' · '+last.dayLabel);
@@ -2099,7 +2105,7 @@ set('omsMatchRating',last.rating.toFixed(1)+' / 10');
 const events=document.getElementById('omsMatchEvents');
 if(events)events.innerHTML=last.events.map((x,i)=>'<div class="match-event '+(i>1?'dim':'')+'">'+x+'</div>').join('');
 }else{
-set('omsHomeName',state.club||'Your club');set('omsAwayName',pickOpponent(state).name);
+set('omsHomeName',state.club||'Your club');set('omsAwayName',nextOpponent.name);
 set('omsHomeScore','—');set('omsAwayScore','—');set('omsMatchSummary','Play your first match to create a report.');set('omsMatchRating','— / 10');
 }
 }
