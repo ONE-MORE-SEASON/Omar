@@ -35,7 +35,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 .match-form .win{background:#0b493a;color:#7af0c7}.match-form .draw{background:#423a1a;color:#ffe08a}.match-form .loss{background:#49212b;color:#ffb6c0}
 @media(max-width:850px){.match-engine{grid-template-columns:1fr}.match-stat-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
-<link rel="stylesheet" href="visual-overhaul.css?v=20261019-1">
+<link rel="stylesheet" href="visual-overhaul.css?v=20261021-1">
 </head>
 <body>
 <section id="creator" class="creator"><div class="creatorCard"><div class="intro"><div class="os">OS</div><div class="eyebrow">ONE MORE SEASON · CAREER SIM</div><h1>Start your football career.</h1><p>Create your player, choose your position and club, then simulate your career day by day. No 3D and no minigames — this is a pure career simulation.</p></div><div class="form"><div class="eyebrow">CAREER CREATOR</div><h2>Player information</h2><div class="formGrid"><div class="field full"><label>Name</label><input id="name" placeholder="Player name"></div><div class="field"><label>Age</label><input id="age" type="number" min="16" max="40" value="17"></div><div class="field"><label>Position</label><select id="pos"><option>ST</option><option>CF</option><option>CAM</option><option>CM</option><option>LW</option><option>RW</option><option>LB</option><option>CB</option><option>RB</option><option>GK</option></select></div><div class="field"><label>Nationality</label><select id="nation"><option>Sweden</option><option>England</option><option>Spain</option><option>France</option><option>Brazil</option><option>Germany</option><option>Portugal</option><option>Argentina</option></select></div><div class="field"><label>Starting club</label><select id="club"><option>Hillcrest Academy</option><option>BK Häcken</option><option>Real Sociedad</option><option>Villarreal</option><option>Aston Villa</option></select></div><div class="field"><label>Preferred foot</label><select id="omsFoot"><option>Right</option><option>Left</option><option>Both</option></select></div><div class="field"><label>Career pace</label><select id="omsPace"><option value="classic">Classic · 11 key decisions</option><option value="quick">Quick · faster calendar</option><option value="immersive">Immersive · more story events</option></select></div><div class="field"><label>Difficulty</label><select id="omsDifficulty"><option value="normal">Normal</option><option value="hard">Hard</option><option value="legend">Legend</option></select></div><div class="field"><label>Starting route</label><select id="omsRoute"><option value="academy">Youth academy</option><option value="bench">First-team bench</option><option value="starter">First-team starter</option><option value="loan">Loan pathway</option></select></div></div><button class="start" onclick="beginCareer()">BEGIN CAREER →</button></div></div></section>
@@ -78,9 +78,19 @@ const tabs=[['HOME','home'],['SQUAD','squad'],['TRANSFERS','transfers'],['ACADEM
 const nav=document.getElementById('nav');tabs.forEach(([name,id],i)=>{const b=document.createElement('button');b.textContent=name;b.onclick=()=>show(id,b);if(i===0)b.classList.add('active');nav.appendChild(b)});
 function beginCareer(){const name=document.getElementById('name').value.trim();if(!name){alert('Skriv ett spelarnamn först.');return}state={name,age:+document.getElementById('age').value,pos:document.getElementById('pos').value,nation:document.getElementById('nation').value,club:document.getElementById('club').value,preferredFoot:document.getElementById('omsFoot')?.value||'Right',careerPace:document.getElementById('omsPace')?.value||'classic',difficulty:document.getElementById('omsDifficulty')?.value||'normal',startingRoute:document.getElementById('omsRoute')?.value||'academy',journeyDecision:0,journeyHeadlines:[],journeyLog:[],journeyFlags:{},day:1,nextMatchDay:1,season:1,ovr:67,fitness:92,morale:78,sharp:85,wins:0,draws:0,losses:0};save();openApp();render()}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function openApp(){document.getElementById('creator').classList.add('hidden');document.getElementById('app').classList.remove('hidden')}
-function show(id,b){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');nav.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
+function show(id,b){
+ const target=document.getElementById(id);
+ if(!target){toast('This page is not available yet.');return}
+ document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+ target.classList.add('active');
+ const buttons=[...nav.querySelectorAll('button')];
+ buttons.forEach(x=>x.classList.remove('active'));
+ const tab=tabs.find(([name,viewId])=>viewId===id);
+ const activeButton=b&&buttons.includes(b)?b:(tab?buttons.find(x=>x.textContent.trim()===tab[0]):null);
+ if(activeButton)activeButton.classList.add('active');
+}
 function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1800)}
-function advance(n){state.day+=n;state.fitness=Math.max(45,Math.min(100,state.fitness-n*.7+4));state.sharp=Math.max(40,Math.min(100,state.sharp+n*.5));state.morale=Math.max(35,Math.min(100,state.morale+(Math.random()>.5?2:-1)));checkSeason();save();render();toast('Calendar advanced '+n+' days')}
+function advance(n){if(!state){toast('Start a career first.');return}const days=Math.max(1,Math.min(365,Math.floor(Number(n)||1)));state.day+=days;state.fitness=Math.max(30,Math.min(100,state.fitness-days*.7+4));state.sharp=Math.max(30,Math.min(100,state.sharp+days*.5));state.morale=Math.max(20,Math.min(100,state.morale+(Math.random()>.5?2:-1)));checkSeason();save();render();toast('Calendar advanced '+days+' day'+(days===1?'':'s'))}
 function simulateMatch(){const r=Math.random();if(r<.45)state.wins++;else if(r<.72)state.draws++;else state.losses++;state.day++;state.fitness=Math.max(35,state.fitness-7);state.sharp=Math.min(100,state.sharp+8);state.morale=Math.max(30,Math.min(100,state.morale+(r<.45?5:-2)));if(r>.86&&state.ovr<99)state.ovr++;checkSeason();save();render();toast(r<.45?'MATCH WON':'MATCH SIMULATED')}
 function checkSeason(){if(state.day>300){state.season++;state.day=1;state.fitness=90;state.sharp=85;toast('NEW SEASON STARTED')}}
 function deleteCareer(){if(confirm('Delete career and return to the first player setup page?')){localStorage.removeItem(KEY);state=null;location.reload()}}
@@ -1586,7 +1596,7 @@ a{color:var(--c-accent)!important}
      x.inbox=x.inbox||[];x.inbox.unshift('Agent meeting completed · your career plan is being reviewed.');x.inbox=x.inbox.slice(0,20);
      x.m6.last='Agent Meeting · +4 reputation · market value increased · +1 day';
    }
-   save6(x);render6();toast('Career decision saved');
+   save6(x);if(typeof window.render==='function')window.render();render6();if(window.OMSCleanHub&&typeof window.OMSCleanHub.render==='function')window.OMSCleanHub.render();toast('Career decision saved');
  };
  const oldShow=window.show;
  if(oldShow)window.show=function(id,b){oldShow(id,b);if(id==='home')setTimeout(render6,20)};
@@ -2217,5 +2227,5 @@ window.omsNextJourneyDecision=function(){
  toast('Choose A or B to continue — your decision affects your career.');
 };
 </script>
-<script src="button-audit.js?v=20261019-1"></script>
+<script src="button-audit.js?v=20261021-1"></script>
 </body></html>
