@@ -19,6 +19,7 @@
     ['Brasileirão','Brazil',['Flamengo','Palmeiras','Atlético Mineiro','Botafogo','Fluminense','São Paulo','Corinthians','Grêmio','Internacional','Cruzeiro','Bahia','Fortaleza','Vasco da Gama','Athletico Paranaense','Bragantino','Santos']],
     ['MLS','USA',['Inter Miami','LAFC','Vancouver Whitecaps','LA Galaxy','Seattle Sounders','Atlanta United','New York City FC','New York Red Bulls','Columbus Crew','FC Cincinnati','Orlando City','Austin FC','Dallas','Houston Dynamo','Toronto FC','CF Montréal']],
     ['Saudi Pro League','Saudi Arabia',['Al-Hilal','Al Nassr','Al-Ahli','Al-Ittihad','Al-Ettifaq','Al-Shabab','Al-Qadsiah','Al-Taawoun','Al-Fateh','Al-Raed','Damac','Al-Khaleej','Al-Wehda','Al-Okhdood','Al-Fayha','Al-Riyadh']],
+    ['Allsvenskan','Sweden',['Malmö FF','Hammarby','Djurgårdens IF','BK Häcken','AIK','IF Elfsborg','IFK Göteborg','Mjällby AIF','GAIS','IFK Norrköping','IF Brommapojkarna','Sirius','Halmstads BK','Kalmar FF','IFK Värnamo','Östers IF']],
     ['Scottish Premiership','Scotland',['Celtic','Rangers','Aberdeen','Hearts','Hibernian','Motherwell','Dundee United','Dundee','St Mirren','Ross County','Kilmarnock','St Johnstone']],
     ['Belgian Pro League','Belgium',['Club Brugge','Anderlecht','Genk','Gent','Antwerp','Standard Liège','Union SG','Mechelen','Charleroi','Cercle Brugge','Westerlo','OH Leuven','Sint-Truiden','Kortrijk','Dender','Beerschot']],
     ['Croatian First Football League','Croatia',['Dinamo Zagreb','Hajduk Split','Rijeka','Osijek','Lokomotiva Zagreb','Gorica','Varaždin','Istra 1961','Šibenik','Slaven Belupo']],
@@ -67,13 +68,114 @@
   }
   window.OMS_SIM_CUSTOM_CLEAN=()=>{const n=Math.max(1,Math.min(365,parseInt(document.getElementById('omsCleanCustom')?.value||'1',10)));if(typeof window.OMS_SIM_DAYS==='function')window.OMS_SIM_DAYS(n);else if(typeof window.advance==='function')window.advance(n)};
 
+  // Strength ratings are a starting point, not a fixed final ranking. All played scores use
+  // seeded match simulations, so results stay consistent when a user reopens the competition tab.
+  const clubPower={
+    'Manchester City':89,'Arsenal':88,'Liverpool':88,'Chelsea':83,'Newcastle United':82,'Aston Villa':82,'Tottenham':81,'Manchester United':81,'Brighton':78,'Bournemouth':77,'West Ham United':76,'West Ham':76,'Crystal Palace':75,'Brentford':75,'Nottingham Forest':74,'Fulham':74,'Everton':72,'Wolverhampton':72,'Wolves':72,'Leicester City':68,
+    'Real Madrid':92,'Barcelona':89,'Atlético Madrid':86,'Athletic Club':80,'Villarreal':81,'Real Sociedad':79,'Real Betis':78,'Girona':78,'Sevilla':77,'Valencia':76,'Celta Vigo':75,'Osasuna':74,'Getafe':73,'Espanyol':73,'Mallorca':73,'Rayo Vallecano':73,'Alavés':72,'Las Palmas':72,
+    'Bayern Munich':91,'Bayer Leverkusen':87,'Borussia Dortmund':85,'RB Leipzig':84,'VfB Stuttgart':81,'Eintracht Frankfurt':80,'SC Freiburg':78,'Wolfsburg':77,'Hoffenheim':75,'Union Berlin':74,'Mainz 05':74,'Werder Bremen':75,
+    'Inter':89,'Napoli':85,'AC Milan':84,'Juventus':84,'Atalanta':84,'Roma':81,'Lazio':80,'Bologna':80,'Fiorentina':79,'Torino':75,'Genoa':74,'Como':75,'Parma':72,
+    'Paris Saint-Germain':89,'Monaco':82,'Marseille':81,'Lille':80,'Lyon':79,'Nice':78,'Lens':77,'Rennes':77,'Strasbourg':74,
+    'PSV Eindhoven':85,'Feyenoord':82,'Ajax':80,'AZ Alkmaar':78,'Twente':76,'Utrecht':74,
+    'Sporting CP':85,'Benfica':84,'Porto':83,'Braga':78,'Vitória SC':75,
+    'Galatasaray':84,'Fenerbahçe':84,'Beşiktaş':78,'Trabzonspor':77,'Başakşehir':75,
+    'Flamengo':85,'Palmeiras':85,'Botafogo':82,'Atlético Mineiro':80,'São Paulo':79,'Fluminense':78,'Corinthians':76,'Grêmio':76,'Internacional':77,'Santos':73,
+    'Al-Hilal':85,'Al Nassr':83,'Al-Ahli':82,'Al-Ittihad':82,'Al-Qadsiah':76,
+    'Inter Miami':80,'LAFC':79,'Columbus Crew':78,'Vancouver Whitecaps':77,'LA Galaxy':76,'Seattle Sounders':76,
+    'Celtic':83,'Rangers':81,'Club Brugge':81,'Anderlecht':77,'Genk':77,'Dinamo Zagreb':81,'Hajduk Split':77,'Red Bull Salzburg':82,'Sturm Graz':77,'Rapid Wien':74,
+    'Malmö FF':78,'Malmö':78,'Hammarby':76,'Djurgårdens IF':76,'Djurgården':76,'BK Häcken':75,'IF Elfsborg':74,'Elfsborg':74,'AIK':74,'IFK Göteborg':72,'IFK Norrköping':71,'IF Brommapojkarna':70,'GAIS':71,'IFK Värnamo':69,'Kalmar FF':69,'Halmstads BK':69,'Sirius':70,'Mjällby AIF':72,'Östers IF':67
+  };
+  const leagueBase={'Premier League':75,'La Liga':74,'Bundesliga':74,'Serie A':74,'Ligue 1':73,'Eredivisie':72,'Primeira Liga':72,'Süper Lig':71,'Brasileirão':73,'MLS':70,'Saudi Pro League':72,'Scottish Premiership':70,'Belgian Pro League':70,'Croatian First Football League':69,'Austrian Bundesliga':70,'Allsvenskan':69};
+  const normName = value => String(value||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'').replace(/^(fc|ac|if|bk)/,'');
+  function teamPower(team,league,idx=0){
+    if(Number.isFinite(clubPower[team]))return clubPower[team];
+    const key=Object.keys(clubPower).find(k=>normName(k)===normName(team));
+    if(key)return clubPower[key];
+    return Math.max(59,Math.min(79,(leagueBase[league]||71)-Math.max(0,idx-4)*0.42+((idx*7)%3-1)*0.7));
+  }
+  function hashSeed(text){
+    let h=2166136261;
+    for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}
+    return h>>>0;
+  }
+  function seededRandom(seed){
+    let value=seed>>>0;
+    return ()=>{value=(Math.imul(value,1664525)+1013904223)>>>0;return value/4294967296};
+  }
+  function poissonGoals(lambda,rng){
+    const limit=Math.exp(-Math.max(.12,Math.min(3.25,lambda)));
+    let product=1,count=0;
+    do{count++;product*=rng()}while(product>limit&&count<8);
+    return Math.min(7,Math.max(0,count-1));
+  }
+  function scheduleRounds(teams){
+    const rotation=teams.slice();
+    if(rotation.length%2)rotation.push(null);
+    const n=rotation.length,firstLeg=[];
+    for(let round=0;round<n-1;round++){
+      const games=[];
+      for(let i=0;i<n/2;i++){
+        let a=rotation[i],b=rotation[n-1-i];
+        if(!a||!b)continue;
+        if((round+i)%2===0)games.push({home:a,away:b,round:round+1});
+        else games.push({home:b,away:a,round:round+1});
+      }
+      firstLeg.push(games);
+      const tail=rotation.pop();rotation.splice(1,0,tail);
+    }
+    const secondLeg=firstLeg.map((games,index)=>games.map(g=>({home:g.away,away:g.home,round:firstLeg.length+index+1})));
+    return firstLeg.concat(secondLeg);
+  }
+  function simulateLeague(comp,day,season){
+    const teams=comp[2],maxRounds=Math.max(1,(teams.length%2?teams.length:teams.length-1)*2);
+    const roundIndex=Math.min(maxRounds,Math.max(0,Math.floor((Math.max(1,day)+5)/7)));
+    const fixtures=scheduleRounds(teams),stats=new Map();
+    teams.forEach((team,i)=>stats.set(team,{team,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,strength:teamPower(team,comp[0],i)}));
+    const playedFixtures=[];
+    fixtures.forEach(roundGames=>{
+      roundGames.forEach(game=>{
+        const home=stats.get(game.home),away=stats.get(game.away);
+        const seed=hashSeed([comp[0],season,game.round,game.home,game.away].join('|'));
+        const rng=seededRandom(seed);
+        const homeLambda=Math.max(.25,Math.min(3.3,1.42*Math.exp((home.strength+2-away.strength)/17)));
+        const awayLambda=Math.max(.18,Math.min(2.8,1.18*Math.exp((away.strength-home.strength-2)/18)));
+        const homeGoals=poissonGoals(homeLambda,rng),awayGoals=poissonGoals(awayLambda,rng);
+        const result={...game,homeGoals,awayGoals};
+        if(game.round<=roundIndex){
+          home.p++;away.p++;home.gf+=homeGoals;home.ga+=awayGoals;away.gf+=awayGoals;away.ga+=homeGoals;
+          if(homeGoals>awayGoals){home.w++;home.pts+=3;away.l++}
+          else if(homeGoals<awayGoals){away.w++;away.pts+=3;home.l++}
+          else{home.d++;away.d++;home.pts++;away.pts++}
+          playedFixtures.push(result);
+        }
+      });
+    });
+    const rows=[...stats.values()].map(x=>({...x,gd:x.gf-x.ga}));
+    rows.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||b.strength-a.strength||a.team.localeCompare(b.team));
+    const upcomingFixtures=fixtures.filter(roundGames=>roundGames.length&&roundGames[0].round>roundIndex).flat().map(g=>({...g}));
+    return {rows,playedFixtures:playedFixtures.sort((a,b)=>b.round-a.round),upcomingFixtures,roundIndex,maxRounds,season:Math.max(1,Number(season)||1),teams:teams.slice(),competition:comp[0],country:comp[1]};
+  }
+  window.OMS_GET_COMPETITION_DATA=function(leagueName){
+    const selected=comps.find(item=>item[0]===leagueName);
+    const s=get(),currentClub=club(),currentLeague=comps.find(item=>item[2].some(team=>normName(team)===normName(currentClub)));
+    const comp=selected||currentLeague||comps[0];
+    return simulateLeague(comp,Math.max(1,Number(s.day)||1),Math.max(1,Number(s.season)||1));
+  };
+
   function renderCompetitions(){
     const app=document.getElementById('app');if(!app||app.classList.contains('hidden'))return;css();
     const nav=document.getElementById('nav');if(nav&&!document.getElementById('omsCompNav')){const b=document.createElement('button');b.id='omsCompNav';b.textContent='COMPETITIONS';b.onclick=()=>{view.dataset.mode='TABLE';renderCompetitions();showCleanView('omsCompetitionView','omsCompNav');};nav.appendChild(b)}
     let view=document.getElementById('omsCompetitionView');if(!view){view=document.createElement('section');view.id='omsCompetitionView';view.className='view';view.innerHTML='<div class="oms-comp-view"></div>';app.querySelector('main').appendChild(view)}
-    const center=view.firstElementChild;const idx=Math.min(comps.length-1,Math.max(0,Number(view.dataset.idx||0)));const c=comps[idx];const day=Math.max(1,Number(get().day||1));
-    const rows=c[2].map((team,i)=>{const played=Math.max(1,Math.floor(day/3)+(i%3));const w=Math.max(0,Math.floor(played*.5)-((i+day)%4===0?1:0));const dr=Math.max(0,Math.floor(played*.2)+((i+day)%5===0?1:0));const l=Math.max(0,played-w-dr);const gd=w*2+dr-(l*2);return{team,p:played,w,d:dr,l,gd,pts:w*3+dr,pos:i}}).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||a.team.localeCompare(b.team));
-    center.innerHTML=`<section class="oms-comp-box"><div class="oms-comp-head"><div><div class="oms-kicker">COMPETITIONS</div><div class="oms-comp-title">${esc(c[0])}</div><div class="muted">${esc(c[1])} · simulated standings</div></div><select id="omsCompSelect" class="oms-select">${comps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${esc(x[0])}</option>`).join('')}</select></div><div class="oms-tabs"><button class="oms-tab active">TABLE</button><button class="oms-tab">FIXTURES</button><button class="oms-tab">RESULTS</button><button class="oms-tab">TOP SCORERS</button><button class="oms-tab">NEWS</button></div><div class="oms-comp-grid"><div class="oms-comp-box"><table class="oms-table"><thead><tr><th>#</th><th>CLUB</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${r.team.toLowerCase()===String(club()).toLowerCase()?'user':''}"><td>${i+1}</td><td class="club">${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td><td class="pts">${r.pts}</td></tr>`).join('')}</tbody></table></div><aside class="oms-comp-box"><div class="oms-kicker">COMPETITION STATUS</div><div class="oms-side"><div class="oms-side-item"><b>🏆 Leader</b><small>${esc(rows[0]?.team||'—')}</small></div><div class="oms-side-item"><b>⭐ Your club</b><small>${esc(club())}</small></div><div class="oms-side-item"><b>📅 Current day</b><small>Day ${day}</small></div><div class="oms-side-item"><b>📈 Table</b><small>Updates as the career advances.</small></div></div></aside></div><div class="oms-kicker" style="margin-top:16px">CUPS & CONTINENTAL</div><div class="oms-cups">${cups.map(x=>`<div class="oms-cup"><b>🏆 ${esc(x)}</b></div>`).join('')}</div></section>`;
+    const center=view.firstElementChild;
+    const hasChoice=Object.prototype.hasOwnProperty.call(view.dataset,'idx');
+    const currentClub=club();
+    const detectedLeague=comps.findIndex(item=>item[2].some(team=>normName(team)===normName(currentClub)));
+    const idx=Math.min(comps.length-1,Math.max(0,hasChoice?Number(view.dataset.idx):(detectedLeague>=0?detectedLeague:0)));
+    if(!hasChoice)view.dataset.idx=String(idx);
+    const c=comps[idx],s=get(),day=Math.max(1,Number(s.day||1)),season=Math.max(1,Number(s.season||1));
+    const leagueData=simulateLeague(c,day,season),rows=leagueData.rows;
+    const tableStatus=leagueData.roundIndex===0?'Pre-season power ranking · no matches played':('Matchday '+leagueData.roundIndex+' / '+leagueData.maxRounds+' · simulated results');
+    center.innerHTML=`<section class="oms-comp-box"><div class="oms-comp-head"><div><div class="oms-kicker">COMPETITIONS</div><div class="oms-comp-title">${esc(c[0])}</div><div class="muted">${esc(c[1])} · ${esc(tableStatus)}</div></div><select id="omsCompSelect" class="oms-select">${comps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${esc(x[0])}</option>`).join('')}</select></div><div class="oms-tabs"><button class="oms-tab active">TABLE</button><button class="oms-tab">FIXTURES</button><button class="oms-tab">RESULTS</button><button class="oms-tab">TOP SCORERS</button><button class="oms-tab">NEWS</button></div><div class="oms-comp-grid"><div class="oms-comp-box"><table class="oms-table"><thead><tr><th>#</th><th>CLUB</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${r.team.toLowerCase()===String(club()).toLowerCase()?'user':''}"><td>${i+1}</td><td class="club">${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td><td class="pts">${r.pts}</td></tr>`).join('')}</tbody></table></div><aside class="oms-comp-box"><div class="oms-kicker">COMPETITION STATUS</div><div class="oms-side"><div class="oms-side-item"><b>🏆 Leader</b><small>${esc(rows[0]?.team||'—')}</small></div><div class="oms-side-item"><b>⭐ Your club</b><small>${esc(club())}</small></div><div class="oms-side-item"><b>📅 Current day</b><small>Day ${day}</small></div><div class="oms-side-item"><b>📈 Table</b><small>Matchday ${leagueData.roundIndex} of ${leagueData.maxRounds}. Club strength matters, but upsets are possible.</small></div></div></aside></div><div class="oms-kicker" style="margin-top:16px">CUPS & CONTINENTAL</div><div class="oms-cups">${cups.map(x=>`<div class="oms-cup"><b>🏆 ${esc(x)}</b></div>`).join('')}</div></section>`;
     view.querySelector('#omsCompSelect').onchange=e=>{view.dataset.idx=e.target.value;renderCompetitions()};
   }
 
