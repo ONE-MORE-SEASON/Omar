@@ -179,6 +179,8 @@
     }
     const name = resolveClub(select.value) || select.value || 'Unknown club';
     const strength = strengthFor(name), n = starCount(strength);
+    if (preview.dataset.club === name && preview.querySelector('.oms-club-rating-badge')) return;
+    preview.dataset.club = name;
     preview.innerHTML = '<span class="oms-club-preview-label">CLUB QUALITY</span><span class="oms-club-preview-name"></span>';
     preview.querySelector('.oms-club-preview-name').textContent = name;
     preview.appendChild(badge(name, false));
@@ -191,8 +193,7 @@
     const status = document.querySelector('#home .panel h2');
     const name = window.state?.club;
     if (!name) return;
-    const home = document.getElementById('home');
-    const statusPanel = home && [...home.querySelectorAll('.panel')].find(p => p.querySelector('h2')?.textContent.trim() === 'PLAYER STATUS');
+    const statusPanel = [...document.querySelectorAll('.panel')].find(p => p.querySelector('h2')?.textContent.trim() === 'PLAYER STATUS');
     if (!statusPanel) return;
     let box = document.getElementById('omsMyClubRating');
     if (!box) {
@@ -204,6 +205,8 @@
     }
     const canonical = resolveClub(name) || name;
     const n = starCount(strengthFor(canonical));
+    if (box.dataset.club === canonical && box.querySelector('.oms-club-rating-badge')) return;
+    box.dataset.club = canonical;
     box.innerHTML = '<span class="oms-my-club-kicker">YOUR CLUB</span><span class="oms-my-club-name"></span>';
     box.querySelector('.oms-my-club-name').textContent = canonical;
     box.appendChild(badge(canonical, false));
