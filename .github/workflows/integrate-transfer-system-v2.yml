@@ -1,0 +1,46 @@
+name: Integrate Transfer System v2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load transfer system into main page
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<script src="transfer-system-v2.js?v=20261024-2"></script>'
+          if tag not in s:
+              marker = '</body>'
+              if marker not in s:
+                  raise SystemExit('index.html has no </body> marker')
+              s = s.replace(marker, tag + '\n' + marker, 1)
+              p.write_text(s, encoding='utf-8')
+              print('Transfer System v2 integrated into index.html')
+          else:
+              print('Transfer System v2 already integrated')
+
+      - name: Commit integration
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No integration change needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Integrate complete Player Career transfer system v2"
+          git push
