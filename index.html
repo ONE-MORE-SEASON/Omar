@@ -36,6 +36,7 @@ main{max-width:1500px;margin:auto;padding:24px 28px 50px}.view{display:none}.vie
 @media(max-width:850px){.match-engine{grid-template-columns:1fr}.match-stat-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 <link rel="stylesheet" href="visual-overhaul.css?v=20261021-2">
+<link rel="stylesheet" href="transfer-center.css?v=20261024-1">
 </head>
 <body>
 <section id="creator" class="creator"><div class="creatorCard"><div class="intro"><div class="os">OS</div><div class="eyebrow">ONE MORE SEASON · CAREER SIM</div><h1>Start your football career.</h1><p>Create your player, choose your position and club, then simulate your career day by day. No 3D and no minigames — this is a pure career simulation.</p></div><div class="form"><div class="eyebrow">CAREER CREATOR</div><h2>Player information</h2><div class="formGrid"><div class="field full"><label>Name</label><input id="name" placeholder="Player name"></div><div class="field"><label>Age</label><input id="age" type="number" min="16" max="40" value="17"></div><div class="field"><label>Position</label><select id="pos"><option>ST</option><option>CF</option><option>CAM</option><option>CM</option><option>LW</option><option>RW</option><option>LB</option><option>CB</option><option>RB</option><option>GK</option></select></div><div class="field"><label>Nationality</label><select id="nation"><option>Sweden</option><option>England</option><option>Spain</option><option>France</option><option>Brazil</option><option>Germany</option><option>Portugal</option><option>Argentina</option></select></div><div class="field"><label>Starting club</label><select id="club"><option>Hillcrest Academy</option><option>BK Häcken</option><option>Real Sociedad</option><option>Villarreal</option><option>Aston Villa</option></select></div><div class="field"><label>Preferred foot</label><select id="omsFoot"><option>Right</option><option>Left</option><option>Both</option></select></div><div class="field"><label>Career pace</label><select id="omsPace"><option value="classic">Classic · 11 key decisions</option><option value="quick">Quick · faster calendar</option><option value="immersive">Immersive · more story events</option></select></div><div class="field"><label>Difficulty</label><select id="omsDifficulty"><option value="normal">Normal</option><option value="hard">Hard</option><option value="legend">Legend</option></select></div><div class="field"><label>Starting route</label><select id="omsRoute"><option value="academy">Youth academy</option><option value="bench">First-team bench</option><option value="starter">First-team starter</option><option value="loan">Loan pathway</option></select></div></div><button class="start" onclick="beginCareer()">BEGIN CAREER →</button></div></div></section>
@@ -2235,6 +2236,7 @@ window.omsNextJourneyDecision=function(){
  toast('Choose A or B to continue — your decision affects your career.');
 };
 </script>
+<script src="transfer-system.js?v=20261024-1"></script>
 <script src="button-audit.js?v=20261021-1"></script>
 <script src="club-stars.js?v=20261021-1"></script>
 <script src="league-table-v27.js?v=20261021-1"></script>

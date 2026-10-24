@@ -1,0 +1,67 @@
+/* Player Career transfer desk, styled to match the current dark career UI. */
+#transfers .oms-transfer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+#transfers .oms-transfer-head h1{margin:4px 0 5px}
+#transfers .oms-transfer-status,#transfers .oms-transfer-count{display:inline-flex;align-items:center;justify-content:center;padding:7px 10px;border:1px solid rgba(101,230,189,.26);border-radius:999px;background:rgba(101,230,189,.09);color:#a5f2d7;font-size:10px;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+#transfers .oms-transfer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+#transfers .oms-transfer-overview{grid-column:1/-1}
+#transfers .oms-transfer-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:16px}
+#transfers .oms-transfer-kpis>div,#transfers .oms-transfer-terms>div{min-width:0;padding:12px;border:1px solid rgba(146,190,225,.13);border-radius:10px;background:rgba(5,15,25,.42)}
+#transfers .oms-transfer-kpis small,#transfers .oms-transfer-terms small{display:block;color:#8fa9bd;font-size:9px;font-weight:800;letter-spacing:.08em}
+#transfers .oms-transfer-kpis b,#transfers .oms-transfer-terms b{display:block;margin-top:5px;color:#edf6fc;font-size:14px;overflow-wrap:anywhere}
+#transfers .oms-transfer-coach{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:14px;padding:15px;border:1px solid rgba(118,202,255,.16);border-radius:12px;background:rgba(8,27,43,.56)}
+#transfers .oms-transfer-coach h3,#transfers .oms-transfer-coach p{margin:4px 0}
+#transfers .oms-transfer-coach>.action{width:auto;margin:0}
+#transfers .oms-transfer-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#transfers .oms-transfer-section-title h2,#transfers .oms-transfer-block h2{margin:4px 0}
+#transfers .oms-transfer-inbox,#transfers .oms-transfer-list,#transfers .oms-transfer-offers{display:grid;gap:9px}
+#transfers .oms-transfer-message{padding:12px;border:1px solid rgba(146,190,225,.12);border-radius:10px;background:rgba(5,15,25,.38)}
+#transfers .oms-transfer-message.unread{border-color:rgba(101,230,189,.34);background:rgba(18,54,52,.24)}
+#transfers .oms-transfer-message>div{display:flex;align-items:center;gap:7px}
+#transfers .oms-transfer-message>div small,#transfers .oms-transfer-offer-head small{color:#8fa9bd;font-size:10px}
+#transfers .oms-transfer-message>b{display:block;margin-top:7px;font-size:13px}
+#transfers .oms-transfer-message p{margin:5px 0 0;color:#aec2d2;font-size:12px;line-height:1.5}
+#transfers .oms-transfer-type{display:inline-block;padding:4px 7px;border-radius:999px;background:rgba(118,202,255,.12);color:#a8ddff;font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+#transfers .oms-transfer-type.loan{background:rgba(255,215,130,.13);color:#ffdf9e}
+#transfers .oms-transfer-block{margin-top:14px}
+#transfers .oms-transfer-offers{grid-template-columns:repeat(2,minmax(0,1fr))}
+#transfers .oms-transfer-offer{min-width:0;padding:15px;border:1px solid rgba(118,202,255,.2);border-radius:13px;background:linear-gradient(145deg,rgba(13,37,57,.86),rgba(7,20,32,.9))}
+#transfers .oms-transfer-offer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#transfers .oms-transfer-offer-head h3{margin:7px 0 2px;font-size:17px}
+#transfers .oms-transfer-fee{display:block;text-align:right;color:#a8f0d2;font-size:16px;white-space:nowrap}
+#transfers .oms-transfer-fee small{display:block;margin-top:4px;font-weight:500}
+#transfers .oms-transfer-terms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:14px}
+#transfers .oms-transfer-terms b{font-size:12px}
+#transfers .oms-transfer-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:13px}
+#transfers .oms-transfer-actions .action{margin:0;padding:10px 7px;font-size:10px}
+#transfers .oms-transfer-actions .action.secondary{color:#c6d7e4}
+#transfers .oms-transfer-counter{margin-top:13px}
+#transfers .oms-transfer-counter label,#transfers .oms-transfer-coach-form label{display:block;margin:0 0 6px;color:#a9c0d2;font-size:11px;font-weight:800}
+#transfers .oms-transfer-counter>div{display:flex;gap:8px}
+#transfers .oms-transfer-counter input,#transfers .oms-transfer-coach-form select{min-width:0;padding:10px;border:1px solid rgba(146,190,225,.2);border-radius:9px;background:#081827;color:#eff6fb}
+#transfers .oms-transfer-counter input{flex:1}
+#transfers .oms-transfer-counter .action{width:auto;margin:0}
+#transfers .oms-transfer-coach-form{grid-column:1/-1;display:grid;gap:8px;padding-top:13px}
+#transfers .oms-transfer-coach-form select{width:100%}
+#transfers .oms-transfer-coach-form .action{width:auto;justify-self:start;margin:3px 0 0}
+#transfers .oms-transfer-list article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border:1px solid rgba(146,190,225,.12);border-radius:9px;background:rgba(5,15,25,.35)}
+#transfers .oms-transfer-list article small{display:block;margin-top:4px;color:#8fa9bd;font-size:10px}
+#transfers .oms-interest-level,#transfers .oms-transfer-rumour{font-size:9px;font-weight:900;letter-spacing:.05em;white-space:nowrap}
+#transfers .oms-interest-level.strong{color:#8ef0c4}#transfers .oms-interest-level.medium{color:#ffdc8b}#transfers .oms-interest-level.early{color:#a9c3d5}#transfers .oms-transfer-rumour{color:#ffdc8b}
+#transfers .oms-transfer-empty{padding:14px;border:1px dashed rgba(146,190,225,.18);border-radius:10px;color:#9bb0c5;font-size:12px;line-height:1.5}
+#transfers .oms-transfer-reactions{display:grid;gap:8px;margin-top:10px}
+#transfers .oms-transfer-reactions article{display:grid;grid-template-columns:86px minmax(0,1fr) auto;align-items:start;gap:11px;padding:12px;border:1px solid rgba(146,190,225,.13);border-radius:10px;background:rgba(5,15,25,.4)}
+#transfers .oms-transfer-reactions article>span{font-size:9px;font-weight:900;letter-spacing:.08em}
+#transfers .oms-transfer-reactions article.positive>span{color:#8ef0c4}#transfers .oms-transfer-reactions article.negative>span{color:#ff9da4}#transfers .oms-transfer-reactions article.neutral>span{color:#ffdc8b}
+#transfers .oms-transfer-reactions p{margin:4px 0 0;color:#b5c8d7;font-size:12px;line-height:1.5}
+#transfers .oms-transfer-reactions small{color:#8fa9bd;font-size:9px}
+.oms-transfer-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;background:rgba(1,7,13,.78);backdrop-filter:blur(7px)}
+.oms-transfer-mail{width:min(520px,100%);padding:22px;border:1px solid rgba(118,202,255,.32);border-radius:17px;background:linear-gradient(145deg,#10253a,#071522);box-shadow:0 25px 90px rgba(0,0,0,.52)}
+.oms-transfer-mailtop{display:flex;justify-content:space-between;align-items:center;margin:-3px 0 20px;color:#a9ddfb;font-size:10px;font-weight:900;letter-spacing:.1em}
+.oms-transfer-mailtop button{width:30px;height:30px;border:1px solid rgba(146,190,225,.18);border-radius:8px;background:#0a1927;color:#d9e6ef;font-size:20px}
+.oms-transfer-mail .eyebrow{color:#65e6bd;font-size:9px;font-weight:900;letter-spacing:.12em}
+.oms-transfer-mail h2{margin:8px 0;font-size:23px;letter-spacing:-.03em}
+.oms-transfer-mail p{color:#b4c7d6;font-size:13px;line-height:1.65}
+.oms-transfer-mailactions{display:flex;gap:8px;margin-top:20px}
+.oms-transfer-mailactions .action{width:auto;margin:0}.oms-transfer-mailactions .secondary{color:#cbd9e4}
+#nav button.oms-transfer-unread:after{content:attr(data-unread);display:inline-grid;place-items:center;min-width:16px;height:16px;margin-left:5px;padding:0 4px;border-radius:99px;background:#65e6bd;color:#06231c;font-size:9px;font-weight:900}
+@media(max-width:760px){#transfers .oms-transfer-head{display:block}#transfers .oms-transfer-status{margin-top:8px}#transfers .oms-transfer-grid,#transfers .oms-transfer-offers{grid-template-columns:1fr}#transfers .oms-transfer-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#transfers .oms-transfer-overview{grid-column:auto}#transfers .oms-transfer-coach{grid-template-columns:1fr}#transfers .oms-transfer-coach>.action{width:100%}#transfers .oms-transfer-actions{grid-template-columns:1fr}#transfers .oms-transfer-reactions article{grid-template-columns:1fr}#transfers .oms-transfer-mailactions{flex-direction:column}#transfers .oms-transfer-mailactions .action{width:100%}}

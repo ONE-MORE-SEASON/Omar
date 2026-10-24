@@ -104,17 +104,9 @@
   }
 
   function maybeTransferOffer(s){
-    if(num(s.reputation)<38 || num(s.season,1)<1 || s.transferOffers.length>=3)return;
-    if(Math.random()>0.09)return;
-    const available=transferTargets.filter(x=>x[0]!==s.club && !s.transferOffers.some(o=>o.club===x[0]));
-    if(!available.length)return;
-    const t=available[Math.floor(Math.random()*available.length)];
-    const level=num(s.ovr,67), fit=level>=t[2]-5 && level<=t[2]+8;
-    if(!fit && Math.random()<0.65)return;
-    const wage=Math.round((num(s.wage,500)*(0.9+Math.random()*1.8))/50)*50;
-    s.transferOffers.push({club:t[0],league:t[1],wage,years:3,day:s.day,season:s.season});
-    record('Transfer interest',t[0]+' have opened talks about '+s.name+'. Proposed wage: €'+wage+'k/week.');
-    toast('Transfer interest from '+t[0]);
+    // Transfers are handled by transfer-system.js, which respects windows,
+    // player fit and inbox delivery instead of generating offers per match.
+    return;
   }
 
   function maybeNationalTeam(s,rating){
@@ -136,13 +128,8 @@
   }
 
   function renderTransfers(){
-    const s=get(); if(!s)return; ensure(s);
-    const host=document.getElementById('transfers'); if(!host)return;
-    let box=document.getElementById('omsRealismTransfers');
-    if(!box){box=document.createElement('div');box.id='omsRealismTransfers';box.className='panel';host.appendChild(box)}
-    const offers=s.transferOffers;
-    box.innerHTML='<div class="eyebrow">PLAYER CAREER · REALISTIC MARKET</div><h2>CLUB INTEREST</h2>'+(
-      offers.length ? offers.slice().reverse().map((o,i)=>'<div class="card" style="margin-top:10px"><b>'+esc(o.club)+'</b><p class="muted">'+esc(o.league)+' · €'+o.wage+'k/week · '+o.years+' years</p><button class="action" onclick="OMS_ACCEPT_OFFER('+i+')">ACCEPT INTEREST →</button></div>').join('') : '<p class="muted">No offers yet. Improve performances and reputation to attract clubs.</p>');
+    // The dedicated transfer-system.js owns the transfer-center screen.
+    return;
   }
 
   window.OMS_ACCEPT_OFFER=function(reverseIndex){
@@ -221,7 +208,6 @@
     for(let i=0;i<days;i++)tickDay();
     oldAdvance.call(this,days);
     ensure(get());
-    if(num(s.reputation)>=35 && Math.random()<0.08)maybeTransferOffer(s);
     saveNow();renderAll();
   };
 
